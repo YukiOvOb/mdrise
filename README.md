@@ -1,7 +1,7 @@
 <!-- mdrise:banner -->
 <div align="center">
 
-### 👉 [看渲染版 / View styled HTML →](./README.html)
+### 👉 [看渲染版 / View styled HTML →](https://yukiovob.github.io/mdrise/README.html)
 
 </div>
 
