@@ -145,7 +145,7 @@ HTML Component Tree      ← 渲染层（人类阅读）
 ### Claude Code CLI
 
 ```
-/plugin marketplace add <你的github>/mdrise
+/plugin marketplace add YukiOvOb/mdrise
 /reload-plugins
 ```
 
@@ -346,7 +346,7 @@ Each was rendered both with-skill and as a no-skill baseline. Click any link to 
 ### Claude Code CLI
 
 ```
-/plugin marketplace add <your-github>/mdrise
+/plugin marketplace add YukiOvOb/mdrise
 /reload-plugins
 ```
 
