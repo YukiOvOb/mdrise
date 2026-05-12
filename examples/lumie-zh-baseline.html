@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lumie 项目最终自检报告</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;700&family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-gradient-1: #f8f4ff;
+    --bg-gradient-2: #fef0f5;
+    --bg-gradient-3: #eef4ff;
+    --ink: #1f1730;
+    --ink-soft: #4a4060;
+    --ink-muted: #786d93;
+    --accent: #7c5cff;
+    --accent-soft: #b8a6ff;
+    --accent-pink: #ff6ea8;
+    --accent-mint: #4dd0b1;
+    --accent-amber: #ffb55a;
+    --card: rgba(255, 255, 255, 0.72);
+    --card-border: rgba(124, 92, 255, 0.16);
+    --rule: rgba(124, 92, 255, 0.18);
+    --code-bg: rgba(124, 92, 255, 0.08);
+    --code-ink: #5b3fd1;
+    --shadow-soft: 0 12px 40px -16px rgba(80, 40, 160, 0.18);
+    --shadow-hover: 0 18px 50px -20px rgba(80, 40, 160, 0.28);
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background:
+      radial-gradient(circle at 12% 8%, var(--bg-gradient-2) 0%, transparent 42%),
+      radial-gradient(circle at 88% 10%, var(--bg-gradient-3) 0%, transparent 45%),
+      radial-gradient(circle at 50% 90%, #f5edff 0%, transparent 50%),
+      var(--bg-gradient-1);
+    background-attachment: fixed;
+    color: var(--ink);
+    font-family: "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-weight: 400;
+    line-height: 1.75;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .page {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 64px 32px 96px;
+  }
+
+  /* ---- Header ---- */
+  .header {
+    position: relative;
+    padding: 56px 48px 48px;
+    border-radius: 28px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.55) 100%);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.7);
+    box-shadow: var(--shadow-soft);
+    overflow: hidden;
+    margin-bottom: 48px;
+  }
+
+  .header::before {
+    content: "";
+    position: absolute;
+    top: -120px;
+    right: -100px;
+    width: 320px;
+    height: 320px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,110,168,0.25), transparent 65%);
+    pointer-events: none;
+  }
+  .header::after {
+    content: "";
+    position: absolute;
+    bottom: -140px;
+    left: -80px;
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(124,92,255,0.22), transparent 65%);
+    pointer-events: none;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 18px;
+    position: relative;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 28px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  h1 {
+    font-family: "Noto Serif SC", serif;
+    font-size: 44px;
+    font-weight: 700;
+    margin: 0 0 24px;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+    color: var(--ink);
+    position: relative;
+    background: linear-gradient(135deg, #2d1b5e 0%, #7c5cff 60%, #ff6ea8 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    position: relative;
+  }
+  .meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(255,255,255,0.65);
+    border: 1px solid var(--card-border);
+    border-radius: 999px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-weight: 500;
+  }
+  .meta-item .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .meta-item .label {
+    color: var(--ink-muted);
+    font-weight: 400;
+  }
+
+  /* ---- Sections / Cards ---- */
+  section.card {
+    background: var(--card);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--card-border);
+    border-radius: 22px;
+    padding: 40px 44px;
+    margin-bottom: 28px;
+    box-shadow: var(--shadow-soft);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+  }
+  section.card:hover {
+    box-shadow: var(--shadow-hover);
+  }
+
+  h2 {
+    font-family: "Noto Serif SC", serif;
+    font-size: 26px;
+    font-weight: 700;
+    margin: 0 0 28px;
+    color: var(--ink);
+    position: relative;
+    padding-left: 18px;
+    line-height: 1.4;
+  }
+  h2::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 8px;
+    bottom: 8px;
+    width: 4px;
+    border-radius: 4px;
+    background: linear-gradient(180deg, var(--accent), var(--accent-pink));
+  }
+  h2 .num {
+    display: inline-block;
+    color: var(--accent);
+    font-weight: 500;
+    margin-right: 6px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 22px;
+  }
+
+  h3 {
+    font-family: "Noto Serif SC", serif;
+    font-size: 19px;
+    font-weight: 700;
+    margin: 28px 0 16px;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  h4 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 22px 0 10px;
+    color: var(--ink-soft);
+    letter-spacing: 0.02em;
+  }
+
+  p { margin: 0 0 14px; color: var(--ink-soft); }
+
+  /* ---- Blockquote (the header meta) ---- */
+  /* not used as quote since rendered as meta */
+
+  /* ---- Tables ---- */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 18px 0 8px;
+    border-radius: 14px;
+    border: 1px solid var(--card-border);
+    background: rgba(255,255,255,0.55);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14.5px;
+  }
+  thead th {
+    background: linear-gradient(180deg, rgba(124,92,255,0.12), rgba(124,92,255,0.06));
+    color: var(--ink);
+    font-weight: 600;
+    text-align: left;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--rule);
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+  tbody td {
+    padding: 12px 18px;
+    border-bottom: 1px solid rgba(124,92,255,0.08);
+    color: var(--ink-soft);
+    vertical-align: top;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: rgba(124,92,255,0.04); }
+  tbody tr.total td {
+    background: linear-gradient(90deg, rgba(124,92,255,0.08), rgba(255,110,168,0.08));
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  /* ---- Lists ---- */
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 12px 0 14px;
+  }
+  ul li {
+    position: relative;
+    padding: 6px 0 6px 26px;
+    color: var(--ink-soft);
+    line-height: 1.7;
+  }
+  ul li::before {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 16px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-pink));
+    box-shadow: 0 0 0 3px rgba(124,92,255,0.12);
+  }
+
+  ol {
+    counter-reset: ol-counter;
+    list-style: none;
+    padding: 0;
+    margin: 12px 0;
+  }
+  ol li {
+    counter-increment: ol-counter;
+    position: relative;
+    padding: 10px 0 10px 44px;
+    color: var(--ink-soft);
+    line-height: 1.7;
+  }
+  ol li::before {
+    content: counter(ol-counter);
+    position: absolute;
+    left: 0;
+    top: 10px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-pink));
+    color: white;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px -2px rgba(124,92,255,0.4);
+  }
+
+  /* ---- Code ---- */
+  code {
+    font-family: "JetBrains Mono", "SF Mono", "Consolas", monospace;
+    font-size: 0.88em;
+    background: var(--code-bg);
+    color: var(--code-ink);
+    padding: 2px 7px;
+    border-radius: 5px;
+    font-weight: 500;
+    word-break: break-word;
+  }
+  td code { font-size: 0.85em; }
+
+  /* ---- Highlight pills ---- */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.6;
+    letter-spacing: 0.02em;
+  }
+  .badge-ok {
+    background: linear-gradient(135deg, rgba(77,208,177,0.2), rgba(77,208,177,0.08));
+    color: #0d8a6a;
+    border: 1px solid rgba(77,208,177,0.4);
+  }
+  .check { color: #0d8a6a; font-weight: 700; }
+
+  /* ---- Highlight feature blocks ---- */
+  .highlight-block {
+    position: relative;
+    margin: 26px 0;
+    padding: 22px 26px 22px 30px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.7), rgba(255,255,255,0.4));
+    border-radius: 16px;
+    border: 1px solid var(--card-border);
+    border-left: 4px solid var(--accent);
+  }
+  .highlight-block.feature-1 { border-left-color: var(--accent-pink); }
+  .highlight-block.feature-2 { border-left-color: var(--accent); }
+  .highlight-block.feature-3 { border-left-color: var(--accent-mint); }
+  .highlight-block h3 { margin-top: 0; }
+
+  /* ---- Audit list (checkmark items) ---- */
+  ul.audit li {
+    padding-left: 32px;
+  }
+  ul.audit li::before {
+    content: "✓";
+    background: none;
+    color: #0d8a6a;
+    font-weight: 700;
+    font-size: 16px;
+    left: 4px;
+    top: 6px;
+    width: auto;
+    height: auto;
+    border-radius: 0;
+    box-shadow: none;
+    line-height: 1;
+  }
+
+  /* ---- File-list grouping ---- */
+  .file-group {
+    margin-bottom: 22px;
+  }
+  .file-group-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin: 18px 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .file-group-title::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--rule), transparent);
+  }
+
+  /* ---- Rules ---- */
+  hr {
+    border: none;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--rule), transparent);
+    margin: 36px 0;
+  }
+
+  /* ---- Footer note ---- */
+  .footer {
+    text-align: center;
+    margin-top: 56px;
+    font-size: 12px;
+    color: var(--ink-muted);
+    letter-spacing: 0.08em;
+  }
+  .footer .crest {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin: 0 8px;
+    vertical-align: middle;
+  }
+
+  /* ---- Mobile ---- */
+  @media (max-width: 720px) {
+    .page { padding: 32px 16px 64px; }
+    .header { padding: 36px 24px 30px; border-radius: 22px; }
+    h1 { font-size: 30px; }
+    h2 { font-size: 21px; }
+    h3 { font-size: 17px; }
+    section.card { padding: 28px 22px; border-radius: 18px; }
+    thead th, tbody td { padding: 10px 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="header">
+    <div class="eyebrow">Project Self-Audit Report</div>
+    <h1>Lumie 项目最终自检报告</h1>
+    <div class="meta">
+      <span class="meta-item"><span class="dot"></span><span class="label">时间</span>2026-05-07 00:31 SGT</span>
+      <span class="meta-item"><span class="dot"></span><span class="label">范围</span>本次会话内的全部新增 / 修改</span>
+    </div>
+  </header>
+
+  <section class="card">
+    <h2><span class="num">01</span>测试结果</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>测试</th><th>用例数</th><th>通过</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>火山协议帧编解码（<code>test-frame-codec.mjs</code>）</td><td>7</td><td>7 <span class="check">✓</span></td></tr>
+          <tr><td>隐式记忆 17 类正则（<code>test-implicit-memory.mjs</code>）</td><td>16</td><td>16 <span class="check">✓</span></td></tr>
+          <tr><td>情绪词典 + 标点 boost（<code>test-emotion.mjs</code>）</td><td>10</td><td>10 <span class="check">✓</span></td></tr>
+          <tr><td>连续打卡（<code>test-streak.mjs</code>）</td><td>7</td><td>7 <span class="check">✓</span></td></tr>
+          <tr class="total"><td><strong>合计</strong></td><td><strong>40</strong></td><td><strong>40 <span class="check">✓</span></strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>测试位置：<code>outputs/</code> 目录下的 <code>test-*.mjs</code>，可直接 <code>node</code> 运行。</p>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">02</span>三大盈利亮点 落地状态</h2>
+
+    <div class="highlight-block feature-1">
+      <h3>亮点 1 · Live2D 表情贴合对话 <span class="badge badge-ok">已完成 ✅</span></h3>
+      <ul>
+        <li><code>emotion-lexicon.ts</code>：9 类情绪 × 多语言模式 + 4 类标点 boost + 显式 <code>[emotion:xxx]</code> / <code>(开心)</code> 标签解析</li>
+        <li><code>emotion-controller.ts</code>：Pinia 防抖（180ms）+ 置信度阈值（0.55）+ <code>applyDirect/applyFromText</code></li>
+        <li><code>use-emotion-bridge.ts</code>：模型 expression 名 fuzzy match（F01 / Smile / blush）</li>
+        <li><code>use-mood-hue.ts</code>：情绪 → <code>--chromatic-hue</code> 实时背景渐变</li>
+        <li>流式 chat / 实时语音 ASR / 实时语音 LLM 三路同时驱动情绪</li>
+      </ul>
+    </div>
+
+    <div class="highlight-block feature-2">
+      <h3>亮点 2 · 长 / 短 / 永久 记忆 <span class="badge badge-ok">已完成 ✅</span></h3>
+      <ul>
+        <li><code>memory-implicit.ts</code>：11 条高精度正则——姓名 / 年龄 / 地点 / 偏好 / 生日 / 邮箱 / 行为约束 / 项目 / 链接 / 情绪锚点</li>
+        <li>用户从来不需要说"记下来"</li>
+        <li>text + 实时语音 ASR 共用同一隐式管道</li>
+        <li>LLM 抽取（已有）+ 显式 <code>[REMEMBER]</code> 标记（已有）继续工作</li>
+        <li>端到端语音的 system_role 自动注入用户记忆</li>
+        <li>Milestone 卡片：7/30/100/365 天里程碑 idempotent 自动生成</li>
+      </ul>
+    </div>
+
+    <div class="highlight-block feature-3">
+      <h3>亮点 3 · 端到端语音通话 <span class="badge badge-ok">已完成 ✅</span></h3>
+      <ul>
+        <li>后端 <code>volc-realtime.ts</code>：完整的火山豆包二进制协议（4 字节大端 header + event id + session id + payload）</li>
+        <li>后端 <code>voice-realtime.ts</code>：WS 路由 + JWT 鉴权 + 用户记忆注入 + 异步抽取</li>
+        <li>前端 <code>realtime-voice-store.ts</code>：getUserMedia → AudioWorklet → WS → backend</li>
+        <li>前端 <code>audio-player.ts</code>：StreamingPCMPlayer + interrupt + RMS LipSync</li>
+        <li>前端 <code>pcm-worklet.js</code>：16kHz 80ms Int16 重采样 + 电平检测</li>
+        <li>LipSync：TTS 播放 RMS → Live2D <code>mouthOpenSize</code></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">03</span>加分功能（基于商业报告）</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>功能</th><th>文件</th><th>价值</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>角色商城 + 4 预置人格 + 试听</td><td><code>features/marketplace/*</code></td><td>第二曲线收入</td></tr>
+          <tr><td>声音皮肤商城 + 6 speaker</td><td><code>features/settings/voice-skin-picker.vue</code> + 后端 <code>voice-skins.ts</code></td><td>类 Replika cosmetic IAP</td></tr>
+          <tr><td>每日"她想你了"主动消息</td><td><code>features/initiation/daily-initiation-banner.vue</code> + 后端 <code>initiation-service.ts</code></td><td>拉回流失用户</td></tr>
+          <tr><td>共同回忆 7/30/100/365 天里程碑</td><td>同上</td><td>长期付费转化抓手</td></tr>
+          <tr><td>周情绪日记</td><td><code>features/memory/weekly-journal-card.vue</code> + 后端 <code>emotion-journal.ts</code></td><td>情感粘性</td></tr>
+          <tr><td>连续打卡 N 天 chip</td><td>mobile-header + 后端 <code>streak-service.ts</code></td><td>行为锚</td></tr>
+          <tr><td>第一次见面 5 问 onboarding</td><td><code>features/onboarding/onboarding-page.vue</code></td><td>D0 留存</td></tr>
+          <tr><td>高级版 Pro 介绍</td><td><code>features/settings/premium-teaser.vue</code></td><td>付费转化入口</td></tr>
+          <tr><td>输入栏建议回复 chip</td><td><code>features/chat/suggested-replies.vue</code></td><td>减摩擦</td></tr>
+          <tr><td>空聊天起头话题 chip</td><td><code>features/chat/conversation-starters.vue</code></td><td>首次会话不空白</td></tr>
+          <tr><td>消息底反应表情</td><td><code>assistant-item.vue</code></td><td>互动密度</td></tr>
+          <tr><td>心情驱动背景色</td><td><code>use-mood-hue.ts</code></td><td>情绪可视化</td></tr>
+          <tr><td>玻璃质感 + Aurora UI</td><td><code>styles/global.css</code></td><td>视觉定位</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">04</span>文件清单</h2>
+
+    <h3>后端（Lumie-platform）</h3>
+    <ul>
+      <li>新增 <code>apps/backend/src/services/volc-realtime.ts</code></li>
+      <li>新增 <code>apps/backend/src/services/memory-implicit.ts</code></li>
+      <li>新增 <code>apps/backend/src/services/initiation-service.ts</code></li>
+      <li>新增 <code>apps/backend/src/services/emotion-journal.ts</code></li>
+      <li>新增 <code>apps/backend/src/services/streak-service.ts</code></li>
+      <li>新增 <code>apps/backend/src/services/voice-skins.ts</code></li>
+      <li>新增 <code>apps/backend/src/routes/voice-realtime.ts</code></li>
+      <li>新增 <code>apps/backend/src/routes/me-initiation.ts</code></li>
+      <li>新增 <code>apps/backend/src/routes/me-voice-skins.ts</code></li>
+      <li>新增 <code>apps/backend/src/routes/me-journal.ts</code></li>
+      <li>修改 <code>apps/backend/src/index.ts</code> (mount 4 个新路由 + WS bridge)</li>
+      <li>修改 <code>apps/backend/src/services/chat-service.ts</code> (调 implicit memory)</li>
+      <li>修改 <code>apps/backend/package.json</code> (+ws, +@types/ws)</li>
+      <li>修改 <code>apps/backend/.env.example</code> (+VOLC_RT_*)</li>
+      <li>修改 <code>README.md</code> (列出所有新模块)</li>
+    </ul>
+
+    <h3>前端（Lumie-mobile）</h3>
+
+    <div class="file-group">
+      <div class="file-group-title">新增</div>
+      <ul>
+        <li><code>public/pcm-worklet.js</code></li>
+        <li><code>src/features/voice-chat/audio-player.ts</code></li>
+        <li><code>src/features/live2d/emotion-lexicon.ts</code></li>
+        <li><code>src/features/live2d/emotion-controller.ts</code></li>
+        <li><code>src/features/live2d/use-emotion-bridge.ts</code></li>
+        <li><code>src/features/live2d/use-mood-hue.ts</code></li>
+        <li><code>src/features/marketplace/character-presets.ts</code></li>
+        <li><code>src/features/marketplace/marketplace-page.vue</code></li>
+        <li><code>src/features/onboarding/onboarding-page.vue</code></li>
+        <li><code>src/features/initiation/daily-initiation-banner.vue</code></li>
+        <li><code>src/features/memory/weekly-journal-card.vue</code></li>
+        <li><code>src/features/settings/voice-skin-picker.vue</code></li>
+        <li><code>src/features/settings/premium-teaser.vue</code></li>
+        <li><code>src/features/chat/suggested-replies.vue</code></li>
+        <li><code>src/features/chat/conversation-starters.vue</code></li>
+      </ul>
+    </div>
+
+    <div class="file-group">
+      <div class="file-group-title">重写 / 修改</div>
+      <ul>
+        <li><code>src/features/voice-chat/realtime-voice-store.ts</code>（完整实现）</li>
+        <li><code>src/features/chat/chat-store.ts</code> (流式情绪 + 语音接入)</li>
+        <li><code>src/features/chat/assistant-item.vue</code> (反应表情)</li>
+        <li><code>src/features/chat/user-item.vue</code> (bubble-in)</li>
+        <li><code>src/stage/widgets/mobile-live2d-stage.vue</code> (mouth-open-size 接 voice level)</li>
+        <li><code>src/stage/layouts/mobile-header.vue</code> (商城入口 + streak chip + 玻璃风按钮)</li>
+        <li><code>src/stage/layouts/mobile-interactive-area.vue</code> (玻璃风 + suggested replies)</li>
+        <li><code>src/pages/index.vue</code> (初始化 banner + 启动话题)</li>
+        <li><code>src/features/settings/settings-page.vue</code> (Pro Teaser + Voice Skin Picker)</li>
+        <li><code>src/features/memory/memory-page.vue</code> (周情绪日记 card)</li>
+        <li><code>src/App.vue</code> (挂载 emotion bridge + mood hue)</li>
+        <li><code>src/main.ts</code> (3 个新路由 + 首次进入跳 onboarding)</li>
+        <li><code>src/shared/api/client.ts</code> (3 个新 API：voiceSkin / initiation / journal)</li>
+        <li><code>src/styles/global.css</code> (glass / aurora / btn-soft / bubble-in / heart-pulse)</li>
+        <li><code>README.md</code> (完整 feature 表)</li>
+      </ul>
+    </div>
+
+    <div class="file-group">
+      <div class="file-group-title">顶层文档</div>
+      <ul>
+        <li><code>火山端到端实时语音-实施计划.md</code>（执行计划）</li>
+        <li><code>火山端到端-自检报告.md</code>（首轮自检）</li>
+        <li><code>商业报告-AI陪伴赛道与Lumie差异化.md</code>（商业报告 + 差异化）</li>
+        <li><code>项目最终自检报告.md</code>（本文）</li>
+        <li><code>push-both.ps1</code>（用户手动 push 用，因为沙箱代理 403）</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">05</span>待用户操作</h2>
+    <ol>
+      <li>PowerShell 跑 <code>push-both.ps1</code>（commit message：<code>火山端到端写完了</code>）。</li>
+      <li>后端 <code>.env</code> 填入 <code>VOLC_RT_*</code> 真实值（从 <code>.env.example</code> 模板复制）。</li>
+      <li><code>pnpm install</code> 在 <code>Lumie-platform</code> 装 <code>ws</code> + <code>@types/ws</code>。</li>
+      <li>测试链路：登录 → 走完 5 题 onboarding → 点麦克风 → 说话 → 看 Live2D 嘴动 + 表情切换。</li>
+    </ol>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">06</span>安全审计结果</h2>
+    <ul class="audit">
+      <li>火山 Secret Key 仅在后端 env 读取，前端 grep 全无</li>
+      <li>前端 WS 用 JWT <code>?token=...</code> 鉴权</li>
+      <li>memory / initiation / journal / streak 全部按 userId 加 WHERE</li>
+      <li>implicit 记忆不会乱记闲聊（'你好啊' 测试通过）</li>
+      <li>内容安全 / 计费 / 用户隔离 复用现有 chat-service 体系</li>
+    </ul>
+  </section>
+
+  <div class="footer">
+    Lumie<span class="crest"></span>Project Self-Audit<span class="crest"></span>2026-05-07
+  </div>
+
+</div>
+</body>
+</html>

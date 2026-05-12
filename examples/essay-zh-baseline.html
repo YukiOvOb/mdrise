@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>搬到新城市的第一年</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: "Noto Serif SC", "Songti SC", "STSong", "SimSun", "Source Han Serif SC", serif;
+    background: #f4ede2;
+    background-image:
+      radial-gradient(at 12% 8%, rgba(212, 165, 116, 0.18) 0px, transparent 50%),
+      radial-gradient(at 88% 92%, rgba(154, 122, 88, 0.15) 0px, transparent 50%),
+      radial-gradient(at 50% 50%, rgba(255, 248, 235, 0.4) 0px, transparent 60%);
+    color: #2d2620;
+    line-height: 1.95;
+    font-size: 18px;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  .page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 80px 48px 120px;
+    position: relative;
+  }
+
+  .page::before {
+    content: "";
+    position: absolute;
+    top: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #a08868, transparent);
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 72px;
+    padding-top: 32px;
+  }
+
+  h1 {
+    font-family: "Ma Shan Zheng", "Noto Serif SC", "Kaiti SC", "STKaiti", cursive;
+    font-size: 2.6rem;
+    font-weight: 400;
+    margin: 0 0 24px;
+    color: #2d2620;
+    letter-spacing: 0.08em;
+    line-height: 1.4;
+  }
+
+  .meta {
+    font-family: "Noto Sans SC", sans-serif;
+    font-size: 0.85rem;
+    color: #8a7558;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    font-weight: 300;
+    display: inline-block;
+    padding: 6px 18px;
+    border-top: 1px solid #c8b393;
+    border-bottom: 1px solid #c8b393;
+  }
+
+  hr {
+    border: none;
+    text-align: center;
+    margin: 56px 0;
+    height: 16px;
+    line-height: 16px;
+  }
+
+  hr::after {
+    content: "❖";
+    color: #b89766;
+    font-size: 14px;
+    letter-spacing: 0.5em;
+    display: inline-block;
+  }
+
+  h2 {
+    font-family: "Noto Serif SC", serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #3d3024;
+    margin: 64px 0 28px;
+    padding-bottom: 12px;
+    letter-spacing: 0.06em;
+    position: relative;
+    display: inline-block;
+  }
+
+  h2::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 40%;
+    height: 2px;
+    background: linear-gradient(90deg, #b89766, transparent);
+  }
+
+  p {
+    margin: 0 0 1.6em;
+    text-align: justify;
+    text-justify: inter-ideograph;
+    color: #2d2620;
+    text-indent: 0;
+  }
+
+  p:first-of-type::first-letter {
+    /* keep paragraphs natural — no drop caps for CJK */
+  }
+
+  blockquote {
+    margin: 36px 0;
+    padding: 24px 32px;
+    background: rgba(255, 250, 240, 0.55);
+    border-left: 3px solid #b89766;
+    border-radius: 0 4px 4px 0;
+    color: #5a4a36;
+    font-style: normal;
+    font-size: 1.02rem;
+    line-height: 1.9;
+    position: relative;
+    box-shadow: 0 2px 12px rgba(120, 90, 50, 0.06);
+  }
+
+  blockquote::before {
+    content: "「";
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    font-size: 2rem;
+    color: #d4b58a;
+    font-family: "Noto Serif SC", serif;
+    line-height: 1;
+    opacity: 0.6;
+  }
+
+  blockquote p {
+    margin: 0;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 28px 0 1.6em;
+  }
+
+  ul li {
+    position: relative;
+    padding: 10px 0 10px 28px;
+    border-bottom: 1px dashed rgba(184, 151, 102, 0.3);
+    line-height: 1.8;
+  }
+
+  ul li:last-child {
+    border-bottom: none;
+  }
+
+  ul li::before {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 22px;
+    width: 6px;
+    height: 6px;
+    background: #b89766;
+    border-radius: 50%;
+    box-shadow: 0 0 0 3px rgba(184, 151, 102, 0.15);
+  }
+
+  em {
+    font-style: italic;
+    color: #6d5a40;
+  }
+
+  .closing {
+    text-align: center;
+    margin-top: 48px;
+    font-family: "Ma Shan Zheng", "Kaiti SC", cursive;
+    font-size: 1.15rem;
+    color: #6d5a40;
+    letter-spacing: 0.12em;
+  }
+
+  .closing em {
+    font-style: normal;
+    color: inherit;
+  }
+
+  @media (max-width: 600px) {
+    body { font-size: 17px; }
+    .page { padding: 56px 24px 80px; }
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.3rem; }
+    blockquote { padding: 20px 22px 20px 26px; }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    body {
+      background: #1c1814;
+      background-image:
+        radial-gradient(at 12% 8%, rgba(180, 140, 90, 0.12) 0px, transparent 50%),
+        radial-gradient(at 88% 92%, rgba(120, 90, 60, 0.1) 0px, transparent 50%);
+      color: #d8cbb3;
+    }
+    h1, h2 { color: #e8dcc2; }
+    p { color: #cdbf a4; color: #cdbfa4; }
+    .meta { color: #b09a78; border-color: #5c4a32; }
+    blockquote {
+      background: rgba(60, 48, 34, 0.5);
+      color: #c8b896;
+      box-shadow: none;
+    }
+    ul li { border-color: rgba(184, 151, 102, 0.2); }
+    .closing { color: #b09a78; }
+  }
+</style>
+</head>
+<body>
+  <article class="page">
+    <header>
+      <h1>搬到新城市的第一年</h1>
+      <div class="meta">写于 2025 年冬</div>
+    </header>
+
+    <hr>
+
+    <section>
+      <h2>一、最先记住的不是地标</h2>
+      <p>是巷口那家烧饼摊。</p>
+      <p>老板娘四十多岁，每天清晨五点半开张。第一次去的时候，我连"葱花的还是不要葱花的"都听了三遍才听明白——她的方言混着普通话，像两条河汇成一条。</p>
+      <p>后来我才知道，这条街上的人都是这样说话的。</p>
+    </section>
+
+    <section>
+      <h2>二、想家的方式</h2>
+      <p>第一个月，我每天给妈妈打电话，每次都说"挺好的"。</p>
+      <p>第二个月，电话变成了两天一次，话也少了。不是因为不想说，是因为发现想说的太多，反而说不出来。</p>
+      <p>到第三个月，我开始煮她教我的那道番茄牛腩。锅里咕嘟咕嘟的声音，像是把家乡的下午搬到了这间出租屋。</p>
+      <blockquote>
+        <p>想家不是一种感觉，是一种动作。是你在异乡的厨房里，下意识地切了她切菜的形状。</p>
+      </blockquote>
+    </section>
+
+    <section>
+      <h2>三、城市的善意</h2>
+      <p>有些是计划之外的：</p>
+      <ul>
+        <li>暴雨那天，便利店店员把伞借给了一个陌生人；</li>
+        <li>地铁里被踩到脚，对方比我先道歉；</li>
+        <li>楼下大爷每天遛狗，第三次见面就开始记得我的名字。</li>
+      </ul>
+      <p>这些细碎的瞬间，比任何旅游攻略都更早地告诉我：这座城市，已经在悄悄收留我了。</p>
+    </section>
+
+    <section>
+      <h2>四、一年后</h2>
+      <p>某一天，我发现自己在跟新来的同事介绍这座城市，语气像个本地人。</p>
+      <p>我意识到，"家"这个词，原来是可以同时存在两个地方的。</p>
+    </section>
+
+    <hr>
+
+    <p class="closing"><em>致每一个正在适应新地方的你。</em></p>
+  </article>
+</body>
+</html>

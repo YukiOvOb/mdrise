@@ -1,0 +1,1200 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lumie 项目最终自检报告</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAFAF7;
+    --bg-elev: #FFFFFF;
+    --bg-code: #F4F4EE;
+    --bg-table-head: #F2F1EB;
+    --rule: #E6E4DC;
+    --rule-strong: #D6D3C8;
+    --ink: #1A1A19;
+    --ink-soft: #3A3A36;
+    --muted: #6E6E66;
+    --muted-2: #97968B;
+    --accent: #0F766E;          /* jade-teal */
+    --accent-soft: #E6F2F0;
+    --accent-ink: #064E3B;
+    --warn: #B45309;
+    --ok: #15803D;
+    --shadow: 0 1px 0 rgba(20,20,18,0.04), 0 4px 16px -8px rgba(20,20,18,0.08);
+    --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: 'Manrope', 'Noto Sans SC', -apple-system, system-ui, sans-serif;
+    --display: 'Bricolage Grotesque', 'Manrope', 'Noto Sans SC', sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  /* ---------- Top utility bar ---------- */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    backdrop-filter: saturate(180%) blur(12px);
+    -webkit-backdrop-filter: saturate(180%) blur(12px);
+    background: rgba(250, 250, 247, 0.85);
+    border-bottom: 1px solid var(--rule);
+  }
+  .topbar-inner {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 12px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--display);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    font-size: 14px;
+    color: var(--ink);
+  }
+  .brand-dot {
+    width: 10px; height: 10px; border-radius: 3px;
+    background: linear-gradient(135deg, var(--accent), #14B8A6);
+    box-shadow: 0 0 0 2px rgba(15,118,110,0.12);
+  }
+  .brand-sep {
+    width: 1px; height: 14px; background: var(--rule-strong);
+  }
+  .brand-doc {
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+  .topbar-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    border: 1px solid var(--rule-strong);
+    background: var(--bg-elev);
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--ink-soft);
+    letter-spacing: 0.02em;
+  }
+  .pill.ok { color: var(--ok); border-color: rgba(21,128,61,0.25); background: rgba(21,128,61,0.06); }
+  .pill.ok::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--ok); }
+
+  /* ---------- Layout ---------- */
+  .layout {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 28px;
+    display: grid;
+    grid-template-columns: 248px minmax(0, 1fr);
+    gap: 56px;
+    align-items: start;
+  }
+
+  /* ---------- Side ToC ---------- */
+  .toc {
+    position: sticky;
+    top: 64px;
+    padding: 32px 0 32px 0;
+    max-height: calc(100vh - 64px);
+    overflow-y: auto;
+    border-right: 1px solid var(--rule);
+    padding-right: 24px;
+  }
+  .toc-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    padding-right: 4px;
+  }
+  .toc-label {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--muted-2);
+    font-weight: 600;
+  }
+  .toc-toggle {
+    appearance: none;
+    border: 1px solid var(--rule-strong);
+    background: var(--bg-elev);
+    color: var(--ink-soft);
+    width: 26px; height: 26px;
+    border-radius: 7px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1;
+    transition: background .15s, border-color .15s, color .15s;
+  }
+  .toc-toggle:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-ink); }
+  .toc-toggle[aria-expanded="false"] svg { transform: rotate(-90deg); }
+  .toc-toggle svg { transition: transform .2s ease; }
+
+  .toc-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .toc-list[hidden] { display: none; }
+  .toc-list a {
+    display: grid;
+    grid-template-columns: 22px 1fr;
+    align-items: baseline;
+    gap: 8px;
+    padding: 7px 10px 7px 8px;
+    border-radius: 7px;
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: 13.5px;
+    line-height: 1.4;
+    border-left: 2px solid transparent;
+    margin-left: -2px;
+    transition: background .12s, color .12s, border-color .12s;
+  }
+  .toc-list a .num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted-2);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+  .toc-list a:hover {
+    background: rgba(15,118,110,0.05);
+    color: var(--ink);
+  }
+  .toc-list a.active {
+    color: var(--accent-ink);
+    background: var(--accent-soft);
+    border-left-color: var(--accent);
+    font-weight: 600;
+  }
+  .toc-list a.active .num { color: var(--accent); }
+
+  /* Floating toggle (always visible) */
+  .toc-floating {
+    position: fixed;
+    z-index: 50;
+    left: 18px;
+    bottom: 20px;
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px 9px 11px;
+    border-radius: 999px;
+    border: 1px solid var(--rule-strong);
+    background: var(--bg-elev);
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+  }
+  .toc-floating svg { width: 14px; height: 14px; }
+  .toc-floating:hover { border-color: var(--accent); color: var(--accent-ink); }
+
+  /* On wide screens, the floating chip stays visible as a quick anchor button */
+  @media (min-width: 980px) {
+    .toc-floating { display: inline-flex; }
+  }
+
+  /* ---------- Main content ---------- */
+  main {
+    padding: 32px 0 96px 0;
+    max-width: 760px;
+  }
+
+  /* Hero */
+  .hero {
+    padding: 32px 0 28px 0;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 40px;
+  }
+  .crumbs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  .crumbs .sep { color: var(--rule-strong); }
+  .crumbs .here { color: var(--accent); }
+
+  h1.title {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(36px, 4.6vw, 52px);
+    line-height: 1.08;
+    letter-spacing: -0.025em;
+    margin: 0 0 22px 0;
+    color: var(--ink);
+  }
+
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 4px;
+  }
+  .meta-cell {
+    background: var(--bg-elev);
+    padding: 14px 16px;
+  }
+  .meta-cell .k {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--muted-2);
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .meta-cell .v {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--ink);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+  .meta-cell .v.zh {
+    font-family: var(--sans);
+    font-size: 14px;
+  }
+
+  /* Headings */
+  h2 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 28px;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin: 56px 0 18px 0;
+    padding-top: 8px;
+    scroll-margin-top: 80px;
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+  }
+  h2 .h-num {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    background: var(--accent-soft);
+    padding: 3px 8px;
+    border-radius: 6px;
+    line-height: 1;
+    transform: translateY(-3px);
+  }
+
+  h3 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 19px;
+    line-height: 1.35;
+    letter-spacing: -0.012em;
+    color: var(--ink);
+    margin: 36px 0 14px 0;
+    scroll-margin-top: 80px;
+  }
+
+  h4 {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 14px;
+    margin: 24px 0 10px 0;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* Paragraphs */
+  p { margin: 0 0 14px 0; color: var(--ink-soft); }
+
+  /* Links */
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(15,118,110,0.25); transition: border-color .15s; }
+  a:hover { border-bottom-color: var(--accent); }
+
+  /* Lists */
+  ul, ol {
+    margin: 0 0 18px 0;
+    padding-left: 1.4em;
+    color: var(--ink-soft);
+  }
+  ul li, ol li {
+    margin-bottom: 8px;
+    line-height: 1.65;
+  }
+  ul li::marker { color: var(--accent); }
+  ol li::marker { color: var(--accent); font-family: var(--mono); font-weight: 600; font-size: 0.92em; }
+
+  /* Inline code */
+  code {
+    font-family: var(--mono);
+    font-size: 0.86em;
+    background: var(--bg-code);
+    color: var(--accent-ink);
+    padding: 1.5px 6px;
+    border-radius: 5px;
+    border: 1px solid var(--rule);
+    font-weight: 500;
+    word-break: break-word;
+  }
+  a code { color: inherit; }
+
+  /* Blockquote – used for the date/scope header */
+  .doc-callout {
+    margin: 0 0 28px 0;
+    padding: 14px 18px;
+    border-left: 3px solid var(--accent);
+    background: linear-gradient(90deg, var(--accent-soft) 0%, rgba(230,242,240,0) 100%);
+    border-radius: 0 8px 8px 0;
+  }
+  .doc-callout p { margin: 2px 0; color: var(--ink-soft); font-size: 14px; }
+  .doc-callout p strong { color: var(--ink); }
+  .doc-callout .ts { font-family: var(--mono); font-size: 13px; color: var(--ink); font-variant-numeric: tabular-nums; }
+
+  /* HR */
+  hr {
+    border: none;
+    border-top: 1px solid var(--rule);
+    margin: 48px 0;
+  }
+
+  /* Tables */
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    background: var(--bg-elev);
+    margin: 4px 0 24px 0;
+    box-shadow: var(--shadow);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  thead {
+    background: var(--bg-table-head);
+  }
+  th {
+    text-align: left;
+    padding: 12px 16px;
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    border-bottom: 1px solid var(--rule-strong);
+  }
+  td {
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--rule);
+    color: var(--ink-soft);
+    vertical-align: top;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: rgba(15,118,110,0.025); }
+  td code, th code { font-size: 0.86em; padding: 1px 5px; }
+  td:first-child { font-weight: 500; color: var(--ink); }
+  /* numeric columns – tabular nums for counts */
+  table.test-table td:nth-child(2),
+  table.test-table td:nth-child(3),
+  table.test-table th:nth-child(2),
+  table.test-table th:nth-child(3) {
+    font-family: var(--mono);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    width: 14%;
+  }
+  table.test-table tr.total td {
+    background: var(--bg-table-head);
+    font-weight: 700;
+    color: var(--ink);
+    border-top: 1px solid var(--rule-strong);
+  }
+
+  /* Highlight cards (亮点 sections) */
+  .highlight {
+    border: 1px solid var(--rule);
+    background: var(--bg-elev);
+    border-radius: 12px;
+    padding: 22px 24px 8px 24px;
+    margin: 18px 0 28px 0;
+    box-shadow: var(--shadow);
+    position: relative;
+  }
+  .highlight::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: linear-gradient(180deg, var(--accent) 0%, #14B8A6 100%);
+    border-radius: 12px 0 0 12px;
+  }
+  .highlight h3 {
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .h-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent-ink);
+  }
+  .h-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--ok);
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .highlight ul {
+    padding-left: 1.2em;
+  }
+
+  /* File-listing groups */
+  .files-group {
+    margin: 20px 0 24px 0;
+  }
+  .files-group h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: var(--ink);
+    font-family: var(--display);
+    font-size: 15px;
+    text-transform: none;
+    letter-spacing: -0.005em;
+    font-weight: 600;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed var(--rule);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .files-group h4::before {
+    content: "";
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .files-group ul {
+    list-style: none;
+    padding-left: 2px;
+    margin: 0;
+  }
+  .files-group ul li {
+    padding: 5px 0 5px 22px;
+    position: relative;
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  .files-group ul li::before {
+    content: "↳";
+    position: absolute;
+    left: 4px;
+    top: 5px;
+    color: var(--muted-2);
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+
+  /* Security audit list */
+  .audit-list {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .audit-list li {
+    display: grid;
+    grid-template-columns: 26px 1fr;
+    align-items: start;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--ok);
+    background: var(--bg-elev);
+    border-radius: 8px;
+    margin: 0;
+    line-height: 1.55;
+    font-size: 14.5px;
+  }
+  .audit-list li::before {
+    content: "✓";
+    color: var(--ok);
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 15px;
+    line-height: 1.4;
+  }
+
+  /* User-action steps */
+  ol.steps {
+    counter-reset: step;
+    list-style: none;
+    padding: 0;
+    margin: 8px 0 0 0;
+  }
+  ol.steps li {
+    counter-increment: step;
+    position: relative;
+    padding: 14px 16px 14px 56px;
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    background: var(--bg-elev);
+    font-size: 14.5px;
+    line-height: 1.6;
+  }
+  ol.steps li::before {
+    content: counter(step, decimal-leading-zero);
+    position: absolute;
+    left: 14px;
+    top: 14px;
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    background: var(--accent-soft);
+    color: var(--accent-ink);
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: 0.02em;
+  }
+
+  /* Bonus features table specifics */
+  table.bonus-table th:nth-child(2),
+  table.bonus-table td:nth-child(2) {
+    width: 38%;
+  }
+  table.bonus-table th:nth-child(3),
+  table.bonus-table td:nth-child(3) {
+    width: 26%;
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  /* Footer */
+  footer {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule);
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--muted-2);
+    letter-spacing: 0.02em;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 980px) {
+    .layout {
+      grid-template-columns: 1fr;
+      gap: 0;
+      padding: 0 20px;
+    }
+    .toc {
+      position: fixed;
+      top: 56px;
+      left: 0;
+      bottom: 0;
+      width: 84vw;
+      max-width: 320px;
+      background: var(--bg-elev);
+      border-right: 1px solid var(--rule);
+      padding: 24px 18px 24px 22px;
+      box-shadow: 0 20px 40px -10px rgba(20,20,18,0.15);
+      transform: translateX(-100%);
+      transition: transform .25s ease;
+      z-index: 45;
+      max-height: none;
+      overflow-y: auto;
+    }
+    .toc.open { transform: translateX(0); }
+    main {
+      padding: 24px 0 80px 0;
+    }
+    h1.title { font-size: 34px; }
+    h2 { font-size: 24px; }
+    h3 { font-size: 17px; }
+    .toc-floating {
+      display: inline-flex !important;
+      left: auto;
+      right: 16px;
+      bottom: 16px;
+    }
+    .topbar-meta .pill:nth-child(2) { display: none; }
+  }
+
+  @media (max-width: 480px) {
+    .topbar-inner { padding: 10px 16px; }
+    .meta-grid { grid-template-columns: 1fr 1fr; }
+    table { font-size: 13px; }
+    th, td { padding: 10px 12px; }
+    .crumbs { font-size: 10.5px; }
+  }
+
+  /* Scrim for mobile ToC */
+  .scrim {
+    position: fixed;
+    inset: 0;
+    background: rgba(20,20,18,0.35);
+    backdrop-filter: blur(2px);
+    z-index: 44;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s;
+  }
+  .scrim.show { opacity: 1; pointer-events: auto; }
+  @media (min-width: 981px) { .scrim { display: none; } }
+
+  /* Selection */
+  ::selection { background: rgba(15,118,110,0.2); color: var(--accent-ink); }
+
+  /* Scrollbar — subtle */
+  .toc::-webkit-scrollbar { width: 6px; }
+  .toc::-webkit-scrollbar-track { background: transparent; }
+  .toc::-webkit-scrollbar-thumb { background: var(--rule-strong); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="brand-dot" aria-hidden="true"></span>
+      <span>Lumie</span>
+      <span class="brand-sep" aria-hidden="true"></span>
+      <span class="brand-doc">docs / reports</span>
+    </div>
+    <div class="topbar-meta">
+      <span class="pill ok">40 / 40 passing</span>
+      <span class="pill">v · self-check</span>
+    </div>
+  </div>
+</div>
+
+<div class="scrim" id="scrim"></div>
+
+<div class="layout">
+
+  <!-- Side ToC -->
+  <aside id="toc" class="toc" aria-label="目录">
+    <div class="toc-header">
+      <span class="toc-label">On this page</span>
+      <button class="toc-toggle" id="tocToggle" aria-expanded="true" aria-controls="toc-list" title="收起 / 展开">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+          <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+    <nav id="toc-list" class="toc-list">
+      <a href="#sec-1"><span class="num">01</span><span>测试结果</span></a>
+      <a href="#sec-2"><span class="num">02</span><span>三大盈利亮点 落地状态</span></a>
+      <a href="#sec-2-1" style="padding-left:34px"><span class="num">·</span><span>亮点 1 · Live2D 表情贴合对话</span></a>
+      <a href="#sec-2-2" style="padding-left:34px"><span class="num">·</span><span>亮点 2 · 长 / 短 / 永久 记忆</span></a>
+      <a href="#sec-2-3" style="padding-left:34px"><span class="num">·</span><span>亮点 3 · 端到端语音通话</span></a>
+      <a href="#sec-3"><span class="num">03</span><span>加分功能（基于商业报告）</span></a>
+      <a href="#sec-4"><span class="num">04</span><span>文件清单</span></a>
+      <a href="#sec-5"><span class="num">05</span><span>待用户操作</span></a>
+      <a href="#sec-6"><span class="num">06</span><span>安全审计结果</span></a>
+    </nav>
+  </aside>
+
+  <main>
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="crumbs">
+        <span>Lumie</span>
+        <span class="sep">/</span>
+        <span>Reports</span>
+        <span class="sep">/</span>
+        <span class="here">Final Self-Check</span>
+      </div>
+      <h1 class="title">Lumie 项目最终自检报告</h1>
+
+      <div class="doc-callout">
+        <p><strong>时间：</strong><span class="ts">2026-05-07 00:31 SGT</span></p>
+        <p><strong>范围：</strong>本次会话内的全部新增 / 修改</p>
+      </div>
+
+      <div class="meta-grid">
+        <div class="meta-cell">
+          <div class="k">Total tests</div>
+          <div class="v">40 / 40</div>
+        </div>
+        <div class="meta-cell">
+          <div class="k">Test suites</div>
+          <div class="v">4</div>
+        </div>
+        <div class="meta-cell">
+          <div class="k">Highlights</div>
+          <div class="v">3 shipped</div>
+        </div>
+        <div class="meta-cell">
+          <div class="k">Status</div>
+          <div class="v zh" style="color:var(--ok)">All green</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 1 -->
+    <section>
+      <h2 id="sec-1"><span class="h-num">01</span>测试结果</h2>
+
+      <div class="table-wrap">
+        <table class="test-table">
+          <thead>
+            <tr>
+              <th>测试</th>
+              <th>用例数</th>
+              <th>通过</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>火山协议帧编解码（test-frame-codec.mjs）</td>
+              <td>7</td>
+              <td>7 ✓</td>
+            </tr>
+            <tr>
+              <td>隐式记忆 17 类正则（test-implicit-memory.mjs）</td>
+              <td>16</td>
+              <td>16 ✓</td>
+            </tr>
+            <tr>
+              <td>情绪词典 + 标点 boost（test-emotion.mjs）</td>
+              <td>10</td>
+              <td>10 ✓</td>
+            </tr>
+            <tr>
+              <td>连续打卡（test-streak.mjs）</td>
+              <td>7</td>
+              <td>7 ✓</td>
+            </tr>
+            <tr class="total">
+              <td><strong>合计</strong></td>
+              <td><strong>40</strong></td>
+              <td><strong>40 ✓</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>测试位置：<code>outputs/</code> 目录下的 <code>test-*.mjs</code>，可直接 <code>node</code> 运行。</p>
+    </section>
+
+    <hr>
+
+    <!-- Section 2 -->
+    <section>
+      <h2 id="sec-2"><span class="h-num">02</span>三大盈利亮点 落地状态</h2>
+
+      <div class="highlight">
+        <h3 id="sec-2-1">亮点 1 · Live2D 表情贴合对话 <span class="h-check">✅ shipped</span></h3>
+        <ul>
+          <li><code>emotion-lexicon.ts</code>：9 类情绪 × 多语言模式 + 4 类标点 boost + 显式 <code>[emotion:xxx]</code> / <code>(开心)</code> 标签解析</li>
+          <li><code>emotion-controller.ts</code>：Pinia 防抖（180ms）+ 置信度阈值（0.55）+ <code>applyDirect/applyFromText</code></li>
+          <li><code>use-emotion-bridge.ts</code>：模型 expression 名 fuzzy match（F01 / Smile / blush）</li>
+          <li><code>use-mood-hue.ts</code>：情绪 → <code>--chromatic-hue</code> 实时背景渐变</li>
+          <li>流式 chat / 实时语音 ASR / 实时语音 LLM 三路同时驱动情绪</li>
+        </ul>
+      </div>
+
+      <div class="highlight">
+        <h3 id="sec-2-2">亮点 2 · 长 / 短 / 永久 记忆 <span class="h-check">✅ shipped</span></h3>
+        <ul>
+          <li><code>memory-implicit.ts</code>：11 条高精度正则——姓名 / 年龄 / 地点 / 偏好 / 生日 / 邮箱 / 行为约束 / 项目 / 链接 / 情绪锚点</li>
+          <li>用户从来不需要说"记下来"</li>
+          <li>text + 实时语音 ASR 共用同一隐式管道</li>
+          <li>LLM 抽取（已有）+ 显式 <code>[REMEMBER]</code> 标记（已有）继续工作</li>
+          <li>端到端语音的 system_role 自动注入用户记忆</li>
+          <li>Milestone 卡片：7/30/100/365 天里程碑 idempotent 自动生成</li>
+        </ul>
+      </div>
+
+      <div class="highlight">
+        <h3 id="sec-2-3">亮点 3 · 端到端语音通话 <span class="h-check">✅ shipped</span></h3>
+        <ul>
+          <li>后端 <code>volc-realtime.ts</code>：完整的火山豆包二进制协议（4 字节大端 header + event id + session id + payload）</li>
+          <li>后端 <code>voice-realtime.ts</code>：WS 路由 + JWT 鉴权 + 用户记忆注入 + 异步抽取</li>
+          <li>前端 <code>realtime-voice-store.ts</code>：getUserMedia → AudioWorklet → WS → backend</li>
+          <li>前端 <code>audio-player.ts</code>：StreamingPCMPlayer + interrupt + RMS LipSync</li>
+          <li>前端 <code>pcm-worklet.js</code>：16kHz 80ms Int16 重采样 + 电平检测</li>
+          <li>LipSync：TTS 播放 RMS → Live2D <code>mouthOpenSize</code></li>
+        </ul>
+      </div>
+    </section>
+
+    <hr>
+
+    <!-- Section 3 -->
+    <section>
+      <h2 id="sec-3"><span class="h-num">03</span>加分功能（基于商业报告）</h2>
+
+      <div class="table-wrap">
+        <table class="bonus-table">
+          <thead>
+            <tr>
+              <th>功能</th>
+              <th>文件</th>
+              <th>价值</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>角色商城 + 4 预置人格 + 试听</td>
+              <td><code>features/marketplace/*</code></td>
+              <td>第二曲线收入</td>
+            </tr>
+            <tr>
+              <td>声音皮肤商城 + 6 speaker</td>
+              <td><code>features/settings/voice-skin-picker.vue</code> + 后端 <code>voice-skins.ts</code></td>
+              <td>类 Replika cosmetic IAP</td>
+            </tr>
+            <tr>
+              <td>每日"她想你了"主动消息</td>
+              <td><code>features/initiation/daily-initiation-banner.vue</code> + 后端 <code>initiation-service.ts</code></td>
+              <td>拉回流失用户</td>
+            </tr>
+            <tr>
+              <td>共同回忆 7/30/100/365 天里程碑</td>
+              <td>同上</td>
+              <td>长期付费转化抓手</td>
+            </tr>
+            <tr>
+              <td>周情绪日记</td>
+              <td><code>features/memory/weekly-journal-card.vue</code> + 后端 <code>emotion-journal.ts</code></td>
+              <td>情感粘性</td>
+            </tr>
+            <tr>
+              <td>连续打卡 N 天 chip</td>
+              <td>mobile-header + 后端 <code>streak-service.ts</code></td>
+              <td>行为锚</td>
+            </tr>
+            <tr>
+              <td>第一次见面 5 问 onboarding</td>
+              <td><code>features/onboarding/onboarding-page.vue</code></td>
+              <td>D0 留存</td>
+            </tr>
+            <tr>
+              <td>高级版 Pro 介绍</td>
+              <td><code>features/settings/premium-teaser.vue</code></td>
+              <td>付费转化入口</td>
+            </tr>
+            <tr>
+              <td>输入栏建议回复 chip</td>
+              <td><code>features/chat/suggested-replies.vue</code></td>
+              <td>减摩擦</td>
+            </tr>
+            <tr>
+              <td>空聊天起头话题 chip</td>
+              <td><code>features/chat/conversation-starters.vue</code></td>
+              <td>首次会话不空白</td>
+            </tr>
+            <tr>
+              <td>消息底反应表情</td>
+              <td><code>assistant-item.vue</code></td>
+              <td>互动密度</td>
+            </tr>
+            <tr>
+              <td>心情驱动背景色</td>
+              <td><code>use-mood-hue.ts</code></td>
+              <td>情绪可视化</td>
+            </tr>
+            <tr>
+              <td>玻璃质感 + Aurora UI</td>
+              <td><code>styles/global.css</code></td>
+              <td>视觉定位</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr>
+
+    <!-- Section 4 -->
+    <section>
+      <h2 id="sec-4"><span class="h-num">04</span>文件清单</h2>
+
+      <div class="files-group">
+        <h4>后端（Lumie-platform）</h4>
+        <ul>
+          <li>新增 <code>apps/backend/src/services/volc-realtime.ts</code></li>
+          <li>新增 <code>apps/backend/src/services/memory-implicit.ts</code></li>
+          <li>新增 <code>apps/backend/src/services/initiation-service.ts</code></li>
+          <li>新增 <code>apps/backend/src/services/emotion-journal.ts</code></li>
+          <li>新增 <code>apps/backend/src/services/streak-service.ts</code></li>
+          <li>新增 <code>apps/backend/src/services/voice-skins.ts</code></li>
+          <li>新增 <code>apps/backend/src/routes/voice-realtime.ts</code></li>
+          <li>新增 <code>apps/backend/src/routes/me-initiation.ts</code></li>
+          <li>新增 <code>apps/backend/src/routes/me-voice-skins.ts</code></li>
+          <li>新增 <code>apps/backend/src/routes/me-journal.ts</code></li>
+          <li>修改 <code>apps/backend/src/index.ts</code> (mount 4 个新路由 + WS bridge)</li>
+          <li>修改 <code>apps/backend/src/services/chat-service.ts</code> (调 implicit memory)</li>
+          <li>修改 <code>apps/backend/package.json</code> (+ws, +@types/ws)</li>
+          <li>修改 <code>apps/backend/.env.example</code> (+VOLC_RT_*)</li>
+          <li>修改 <code>README.md</code> (列出所有新模块)</li>
+        </ul>
+      </div>
+
+      <div class="files-group">
+        <h4>前端（Lumie-mobile）</h4>
+        <p style="margin-bottom:6px;font-weight:600;color:var(--ink);font-size:13px;">新增：</p>
+        <ul>
+          <li><code>public/pcm-worklet.js</code></li>
+          <li><code>src/features/voice-chat/audio-player.ts</code></li>
+          <li><code>src/features/live2d/emotion-lexicon.ts</code></li>
+          <li><code>src/features/live2d/emotion-controller.ts</code></li>
+          <li><code>src/features/live2d/use-emotion-bridge.ts</code></li>
+          <li><code>src/features/live2d/use-mood-hue.ts</code></li>
+          <li><code>src/features/marketplace/character-presets.ts</code></li>
+          <li><code>src/features/marketplace/marketplace-page.vue</code></li>
+          <li><code>src/features/onboarding/onboarding-page.vue</code></li>
+          <li><code>src/features/initiation/daily-initiation-banner.vue</code></li>
+          <li><code>src/features/memory/weekly-journal-card.vue</code></li>
+          <li><code>src/features/settings/voice-skin-picker.vue</code></li>
+          <li><code>src/features/settings/premium-teaser.vue</code></li>
+          <li><code>src/features/chat/suggested-replies.vue</code></li>
+          <li><code>src/features/chat/conversation-starters.vue</code></li>
+        </ul>
+
+        <p style="margin:14px 0 6px 0;font-weight:600;color:var(--ink);font-size:13px;">重写 / 修改：</p>
+        <ul>
+          <li><code>src/features/voice-chat/realtime-voice-store.ts</code>（完整实现）</li>
+          <li><code>src/features/chat/chat-store.ts</code> (流式情绪 + 语音接入)</li>
+          <li><code>src/features/chat/assistant-item.vue</code> (反应表情)</li>
+          <li><code>src/features/chat/user-item.vue</code> (bubble-in)</li>
+          <li><code>src/stage/widgets/mobile-live2d-stage.vue</code> (mouth-open-size 接 voice level)</li>
+          <li><code>src/stage/layouts/mobile-header.vue</code> (商城入口 + streak chip + 玻璃风按钮)</li>
+          <li><code>src/stage/layouts/mobile-interactive-area.vue</code> (玻璃风 + suggested replies)</li>
+          <li><code>src/pages/index.vue</code> (初始化 banner + 启动话题)</li>
+          <li><code>src/features/settings/settings-page.vue</code> (Pro Teaser + Voice Skin Picker)</li>
+          <li><code>src/features/memory/memory-page.vue</code> (周情绪日记 card)</li>
+          <li><code>src/App.vue</code> (挂载 emotion bridge + mood hue)</li>
+          <li><code>src/main.ts</code> (3 个新路由 + 首次进入跳 onboarding)</li>
+          <li><code>src/shared/api/client.ts</code> (3 个新 API：voiceSkin / initiation / journal)</li>
+          <li><code>src/styles/global.css</code> (glass / aurora / btn-soft / bubble-in / heart-pulse)</li>
+          <li><code>README.md</code> (完整 feature 表)</li>
+        </ul>
+      </div>
+
+      <div class="files-group">
+        <h4>顶层文档：</h4>
+        <ul>
+          <li><code>火山端到端实时语音-实施计划.md</code>（执行计划）</li>
+          <li><code>火山端到端-自检报告.md</code>（首轮自检）</li>
+          <li><code>商业报告-AI陪伴赛道与Lumie差异化.md</code>（商业报告 + 差异化）</li>
+          <li><code>项目最终自检报告.md</code>（本文）</li>
+          <li><code>push-both.ps1</code>（用户手动 push 用，因为沙箱代理 403）</li>
+        </ul>
+      </div>
+    </section>
+
+    <hr>
+
+    <!-- Section 5 -->
+    <section>
+      <h2 id="sec-5"><span class="h-num">05</span>待用户操作</h2>
+      <ol class="steps">
+        <li>PowerShell 跑 <code>push-both.ps1</code>（commit message：<code>火山端到端写完了</code>）。</li>
+        <li>后端 <code>.env</code> 填入 <code>VOLC_RT_*</code> 真实值（从 <code>.env.example</code> 模板复制）。</li>
+        <li><code>pnpm install</code> 在 <code>Lumie-platform</code> 装 <code>ws</code> + <code>@types/ws</code>。</li>
+        <li>测试链路：登录 → 走完 5 题 onboarding → 点麦克风 → 说话 → 看 Live2D 嘴动 + 表情切换。</li>
+      </ol>
+    </section>
+
+    <hr>
+
+    <!-- Section 6 -->
+    <section>
+      <h2 id="sec-6"><span class="h-num">06</span>安全审计结果</h2>
+      <ul class="audit-list">
+        <li>火山 Secret Key 仅在后端 env 读取，前端 grep 全无</li>
+        <li>前端 WS 用 JWT <code>?token=...</code> 鉴权</li>
+        <li>memory / initiation / journal / streak 全部按 userId 加 WHERE</li>
+        <li>implicit 记忆不会乱记闲聊（'你好啊' 测试通过）</li>
+        <li>内容安全 / 计费 / 用户隔离 复用现有 chat-service 体系</li>
+      </ul>
+    </section>
+
+    <footer>
+      <span>Lumie · final self-check report</span>
+      <span>2026-05-07 00:31 SGT</span>
+    </footer>
+
+  </main>
+</div>
+
+<!-- Persistent floating ToC chip — always visible during scroll -->
+<button class="toc-floating" id="tocFloating" aria-label="切换目录">
+  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <path d="M2 4h12M2 8h12M2 12h8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+  </svg>
+  <span>Contents</span>
+</button>
+
+<script>
+  (function () {
+    const toc = document.getElementById('toc');
+    const tocList = document.getElementById('toc-list');
+    const toggle = document.getElementById('tocToggle');
+    const floating = document.getElementById('tocFloating');
+    const scrim = document.getElementById('scrim');
+    const isMobile = () => window.matchMedia('(max-width: 980px)').matches;
+
+    // Inline (desktop) collapse — hides the list, keeps the rail header visible
+    function setCollapsed(collapsed) {
+      if (collapsed) {
+        tocList.setAttribute('hidden', '');
+        toggle.setAttribute('aria-expanded', 'false');
+      } else {
+        tocList.removeAttribute('hidden');
+        toggle.setAttribute('aria-expanded', 'true');
+      }
+    }
+
+    // Mobile drawer open/close
+    function setDrawer(open) {
+      if (open) {
+        toc.classList.add('open');
+        scrim.classList.add('show');
+      } else {
+        toc.classList.remove('open');
+        scrim.classList.remove('show');
+      }
+    }
+
+    toggle.addEventListener('click', () => {
+      const open = toggle.getAttribute('aria-expanded') === 'true';
+      setCollapsed(open);
+    });
+
+    floating.addEventListener('click', () => {
+      if (isMobile()) {
+        setDrawer(!toc.classList.contains('open'));
+      } else {
+        const open = toggle.getAttribute('aria-expanded') === 'true';
+        setCollapsed(open);
+        // scroll the rail into view nicely
+        if (!open) {
+          window.scrollTo({ top: Math.max(0, window.scrollY - 1), behavior: 'instant' });
+        }
+      }
+    });
+
+    scrim.addEventListener('click', () => setDrawer(false));
+
+    // Close drawer when clicking a link (mobile)
+    tocList.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => { if (isMobile()) setDrawer(false); });
+    });
+
+    // Scroll-spy
+    const links = Array.from(tocList.querySelectorAll('a'));
+    const linkMap = new Map(links.map(a => [a.getAttribute('href').slice(1), a]));
+    const targets = Array.from(document.querySelectorAll('h2[id], h3[id]')).filter(h => linkMap.has(h.id));
+
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          links.forEach(a => a.classList.remove('active'));
+          const link = linkMap.get(e.target.id);
+          if (link) link.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-15% 0px -75% 0px', threshold: 0 });
+
+    targets.forEach(t => io.observe(t));
+
+    // Default expanded on this technical content
+    setCollapsed(false);
+
+    // Resize: close drawer when going back to desktop
+    window.addEventListener('resize', () => {
+      if (!isMobile()) setDrawer(false);
+    });
+  })();
+</script>
+
+</body>
+</html>

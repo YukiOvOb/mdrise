@@ -1,0 +1,1343 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>mdrise — 让 Markdown 升维成可分享的 HTML</title>
+<meta name="description" content="让 Markdown 升维成可分享的 HTML · Elevate any Markdown into a shareable HTML.">
+<meta name="mdrise-source-hash" content="sha256:b0c2ce2a46948d5fe29ae462e3cdca26f5881b786b61a8019bbe8f08c3023214">
+<meta name="mdrise-generated-at" content="2026-05-12T10:10:09Z">
+<meta name="mdrise-source-path" content="README.md">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=Noto+Sans+SC:wght@300;400;500;600;700;800&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0c;
+    --bg-elev: #111114;
+    --bg-card: #131318;
+    --bg-code: #0e0e12;
+    --line: #22232a;
+    --line-soft: #1a1b22;
+    --ink: #ececf1;
+    --ink-soft: #b4b5be;
+    --ink-mute: #7c7d88;
+    --accent: #c6f547;
+    --accent-soft: rgba(198,245,71,0.12);
+    --accent-line: rgba(198,245,71,0.35);
+    --warn: #ff8d6b;
+    --link: #d8ff7a;
+    --serif: "Instrument Serif", "Noto Serif SC", Georgia, serif;
+    --sans: "Geist", "Noto Sans SC", -apple-system, system-ui, sans-serif;
+    --mono: "Geist Mono", ui-monospace, Menlo, monospace;
+    --max: 1180px;
+    --col: 780px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); }
+  body {
+    font-family: var(--sans);
+    font-size: 16.5px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "ss01", "ss02", "cv11";
+    overflow-x: hidden;
+  }
+
+  /* ---- ambient backdrop ---- */
+  .ambient {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .ambient::before, .ambient::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.55;
+  }
+  .ambient::before {
+    width: 720px; height: 720px;
+    left: -260px; top: -240px;
+    background: radial-gradient(circle, rgba(198,245,71,0.18), transparent 60%);
+  }
+  .ambient::after {
+    width: 640px; height: 640px;
+    right: -220px; top: 320px;
+    background: radial-gradient(circle, rgba(108,140,255,0.12), transparent 60%);
+  }
+  .ambient .grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(to right, rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse at center top, black 0%, transparent 80%);
+  }
+
+  .page { position: relative; z-index: 1; }
+
+  /* ---- top nav ---- */
+  .nav {
+    position: sticky; top: 0; z-index: 50;
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    background: rgba(10,10,12,0.7);
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .nav-inner {
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 10px;
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: -0.01em;
+  }
+  .brand-mark {
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, var(--accent), #7fe66a 70%);
+    box-shadow: 0 0 0 1px rgba(198,245,71,0.4), 0 8px 24px -8px rgba(198,245,71,0.5);
+    position: relative;
+  }
+  .brand-mark::after {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    border-radius: 3px;
+    background: var(--bg);
+  }
+  .brand-name { color: var(--ink); }
+
+  .lang-switch {
+    display: inline-flex;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 3px;
+    background: var(--bg-elev);
+  }
+  .lang-switch button {
+    appearance: none;
+    background: transparent;
+    color: var(--ink-mute);
+    border: 0;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: color 160ms, background 160ms;
+  }
+  .lang-switch button.active {
+    background: var(--ink);
+    color: var(--bg);
+  }
+  .lang-switch button:not(.active):hover { color: var(--ink); }
+
+  /* ---- main container ---- */
+  main {
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 0 28px 120px;
+  }
+
+  /* ---- hero ---- */
+  .hero {
+    padding: 88px 0 64px;
+    text-align: center;
+    position: relative;
+  }
+  .hero h1 {
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: clamp(48px, 9vw, 96px);
+    line-height: 0.98;
+    letter-spacing: -0.045em;
+    margin: 0 0 28px;
+    background: linear-gradient(180deg, #ffffff 0%, #c5c6cf 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .hero .tagline {
+    font-family: var(--sans);
+    font-size: clamp(18px, 2.4vw, 22px);
+    line-height: 1.45;
+    color: var(--ink-soft);
+    max-width: 720px;
+    margin: 0 auto 36px;
+    font-weight: 400;
+  }
+  .hero .tagline strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .hero .lang-links {
+    display: inline-flex;
+    gap: 6px;
+    color: var(--ink-mute);
+    font-size: 14px;
+  }
+  .hero .lang-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--ink-soft);
+    text-decoration: none;
+    padding: 8px 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--bg-elev);
+    transition: border-color 160ms, color 160ms, background 160ms;
+  }
+  .hero .lang-links a:hover {
+    color: var(--ink);
+    border-color: var(--accent-line);
+    background: var(--accent-soft);
+  }
+  .hero .lang-links .sep { color: var(--ink-mute); align-self: center; }
+
+  .hero-divider {
+    height: 1px;
+    width: 100%;
+    background: linear-gradient(to right, transparent, var(--line), transparent);
+    margin: 16px 0 0;
+  }
+
+  /* ---- section layout ---- */
+  section.lang-section { display: none; }
+  section.lang-section.active { display: block; }
+
+  .content {
+    max-width: var(--col);
+    margin: 0 auto;
+    padding: 56px 0 0;
+  }
+
+  /* ---- headings ---- */
+  h2 {
+    font-family: var(--sans);
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    margin: 88px 0 24px;
+    color: var(--ink);
+    position: relative;
+    padding-top: 28px;
+    border-top: 1px solid var(--line-soft);
+  }
+  h2::before {
+    content: "";
+    position: absolute;
+    top: -1px; left: 0;
+    width: 56px; height: 2px;
+    background: var(--accent);
+  }
+  h3 {
+    font-family: var(--sans);
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    margin: 40px 0 14px;
+    color: var(--ink);
+  }
+
+  /* ---- paragraphs ---- */
+  p {
+    margin: 0 0 18px;
+    color: var(--ink-soft);
+    font-size: 16.5px;
+    line-height: 1.72;
+  }
+  p strong { color: var(--ink); font-weight: 600; }
+  p em { font-style: italic; color: var(--ink); }
+
+  /* ---- links ---- */
+  a {
+    color: var(--link);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(216,255,122,0.25);
+    transition: border-color 140ms, color 140ms;
+  }
+  a:hover { border-bottom-color: var(--link); }
+
+  /* ---- lists ---- */
+  ul, ol {
+    padding-left: 22px;
+    margin: 0 0 22px;
+    color: var(--ink-soft);
+  }
+  ul li, ol li {
+    margin: 8px 0;
+    line-height: 1.7;
+  }
+  ul li::marker { color: var(--accent); }
+  ol li::marker { color: var(--ink-mute); font-variant-numeric: tabular-nums; font-family: var(--mono); }
+  li strong { color: var(--ink); font-weight: 600; }
+
+  /* ---- inline code ---- */
+  code {
+    font-family: var(--mono);
+    font-size: 0.88em;
+    background: var(--bg-elev);
+    border: 1px solid var(--line-soft);
+    border-radius: 5px;
+    padding: 1px 6px;
+    color: var(--accent);
+  }
+  p code, li code, td code { color: var(--accent); }
+
+  /* ---- code blocks ---- */
+  pre {
+    font-family: var(--mono);
+    background: var(--bg-code);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 22px 24px;
+    overflow-x: auto;
+    margin: 24px 0 28px;
+    font-size: 13.5px;
+    line-height: 1.7;
+    position: relative;
+  }
+  pre code {
+    background: transparent;
+    border: 0;
+    padding: 0;
+    color: var(--ink-soft);
+    font-size: inherit;
+  }
+  pre.diagram {
+    background: linear-gradient(180deg, #0e0f13 0%, #0a0a0d 100%);
+    text-align: center;
+    color: var(--ink);
+    font-size: 14px;
+    border: 1px solid var(--accent-line);
+    padding: 28px 24px;
+  }
+  pre.diagram code { color: var(--ink); display: block; white-space: pre; }
+  pre.html-illustrative {
+    border-color: rgba(108,140,255,0.3);
+    background:
+      linear-gradient(180deg, #0d0e16 0%, #0a0a10 100%);
+  }
+  pre.html-illustrative::before {
+    content: "html";
+    position: absolute;
+    top: 10px; right: 14px;
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(108,140,255,0.65);
+    font-weight: 500;
+  }
+  .tok-tag { color: #ff8d6b; }
+  .tok-attr { color: #c6f547; }
+  .tok-str { color: #b6e3ff; }
+  .tok-punct { color: var(--ink-mute); }
+
+  /* ---- blockquote ---- */
+  blockquote {
+    margin: 28px 0;
+    padding: 18px 24px;
+    border-left: 3px solid var(--accent);
+    background: var(--accent-soft);
+    border-radius: 0 8px 8px 0;
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 19px;
+    line-height: 1.55;
+    font-style: italic;
+  }
+
+  /* ---- table ---- */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 24px 0 28px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--bg-card);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14.5px;
+  }
+  thead th {
+    text-align: left;
+    font-weight: 600;
+    font-size: 12.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-elev);
+  }
+  tbody td {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--line-soft);
+    color: var(--ink-soft);
+    vertical-align: top;
+    line-height: 1.55;
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  tbody td strong { color: var(--ink); }
+  tbody td:first-child { color: var(--ink); font-weight: 500; }
+
+  /* example-table cell links: chip-like to look clickable */
+  .examples td a {
+    display: inline-block;
+    color: var(--link);
+    background: rgba(216,255,122,0.06);
+    border: 1px solid rgba(216,255,122,0.22);
+    border-radius: 6px;
+    padding: 4px 8px;
+    margin: 1px 0;
+    font-size: 13.5px;
+    line-height: 1.4;
+    transition: background 160ms, border-color 160ms, color 160ms;
+  }
+  .examples td a::before {
+    content: "↗";
+    color: var(--ink-mute);
+    margin-right: 6px;
+    font-family: var(--mono);
+  }
+  .examples td a:hover {
+    border-color: var(--link);
+    color: var(--bg);
+    background-color: var(--accent);
+  }
+  .examples td a:hover::before { color: var(--bg); }
+
+  /* ---- image ---- */
+  figure.tweet {
+    margin: 28px 0;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bg-card);
+  }
+  figure.tweet img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+  .tweet-fallback {
+    padding: 40px 24px;
+    text-align: center;
+    color: var(--ink-mute);
+    font-size: 14px;
+    font-family: var(--mono);
+    border: 1px dashed var(--line);
+  }
+
+  /* ---- horizontal rule ---- */
+  hr {
+    border: 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--line), transparent);
+    margin: 56px 0;
+  }
+
+  /* ---- manifesto closer ---- */
+  .manifesto {
+    margin: 96px auto 24px;
+    max-width: 780px;
+    text-align: center;
+    padding: 56px 32px;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    background:
+      radial-gradient(ellipse at center, rgba(198,245,71,0.05), transparent 70%);
+  }
+  .manifesto blockquote {
+    background: transparent;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: clamp(22px, 3vw, 30px);
+    line-height: 1.45;
+    color: var(--ink);
+  }
+  .manifesto .line {
+    display: block;
+    margin: 8px 0;
+  }
+  .manifesto .line.dim { color: var(--ink-soft); }
+  .manifesto .line.bright { color: var(--ink); }
+  .manifesto .attrib {
+    display: block;
+    font-family: var(--mono);
+    font-style: normal;
+    font-size: 12.5px;
+    color: var(--ink-mute);
+    letter-spacing: 0.04em;
+    margin-top: 4px;
+  }
+
+  /* ---- ToC ---- */
+  .toc {
+    position: fixed;
+    top: 96px;
+    right: 28px;
+    z-index: 40;
+    max-width: 260px;
+    font-family: var(--sans);
+  }
+  .toc-toggle {
+    appearance: none;
+    background: var(--bg-elev);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    transition: border-color 160ms, background 160ms, transform 160ms;
+    margin-left: auto;
+  }
+  .toc-toggle:hover {
+    border-color: var(--accent-line);
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  .toc-toggle svg { width: 16px; height: 16px; }
+  .toc-list {
+    margin-top: 10px;
+    background: rgba(17,17,20,0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 6px 14px 14px;
+    max-height: calc(100vh - 160px);
+    overflow-y: auto;
+    box-shadow: 0 24px 48px -16px rgba(0,0,0,0.6);
+  }
+  .toc-list[hidden] { display: none; }
+  .toc-list a {
+    display: block;
+    color: var(--ink-mute);
+    text-decoration: none;
+    font-size: 13px;
+    line-height: 1.35;
+    padding: 5px 10px 5px 10px;
+    border-radius: 6px;
+    border-left: 2px solid transparent;
+    border-bottom: 0;
+    transition: color 140ms, border-color 140ms, background 140ms;
+  }
+  .toc-list a:hover { color: var(--ink); background: var(--bg-card); }
+  .toc-list a.h3 { padding-left: 22px; font-size: 12.5px; color: var(--ink-mute); }
+  .toc-list a.active {
+    color: var(--accent);
+    border-left-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .toc-toggle-wrap {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  /* ---- bridge diagram (visual md↔html) ---- */
+  .bridge {
+    margin: 36px 0;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 16px;
+    align-items: center;
+  }
+  .bridge-node {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 18px 20px;
+    text-align: center;
+  }
+  .bridge-node .label {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+  .bridge-node .desc {
+    font-size: 12.5px;
+    color: var(--ink-mute);
+    line-height: 1.5;
+  }
+  .bridge-arrow {
+    color: var(--ink-mute);
+    font-family: var(--mono);
+    font-size: 22px;
+  }
+
+  /* ---- responsive ---- */
+  @media (max-width: 980px) {
+    .toc { top: 76px; right: 14px; max-width: 220px; }
+  }
+  @media (max-width: 768px) {
+    main { padding: 0 20px 80px; }
+    .nav-inner { padding: 12px 20px; }
+    .hero { padding: 56px 0 36px; }
+    .content { padding: 28px 0 0; }
+    h2 { margin: 56px 0 18px; padding-top: 22px; font-size: 28px; }
+    .bridge { grid-template-columns: 1fr; }
+    .bridge-arrow { transform: rotate(90deg); justify-self: center; }
+    .toc {
+      top: auto;
+      bottom: 18px;
+      right: 18px;
+      left: auto;
+      max-width: calc(100vw - 36px);
+    }
+    .toc-list {
+      position: fixed;
+      bottom: 70px;
+      right: 18px;
+      left: 18px;
+      max-width: none;
+      max-height: 60vh;
+    }
+    pre { font-size: 12.5px; padding: 18px 16px; }
+    pre.diagram { font-size: 12px; }
+  }
+
+  ::selection { background: var(--accent); color: var(--bg); }
+</style>
+</head>
+<body>
+
+<div class="generated-stamp" style="position:relative; z-index:50; background:rgba(200,255,58,0.05); border-bottom:1px solid rgba(200,255,58,0.18); padding:10px 24px; font-family:'Geist Mono','JetBrains Mono',ui-monospace,monospace; font-size:11.5px; letter-spacing:0.04em; color:rgba(235,240,235,0.62); text-align:center; line-height:1.5;">
+  本 html 由 <a href="https://github.com/midasovor/mdrise" style="color:#c8ff3a; text-decoration:none; border-bottom:1px dashed rgba(200,255,58,0.55);">mdrise.skill</a> 生成 &nbsp;·&nbsp; this page was generated by <a href="https://github.com/midasovor/mdrise" style="color:#c8ff3a; text-decoration:none; border-bottom:1px dashed rgba(200,255,58,0.55);">mdrise.skill</a>
+</div>
+
+<div class="ambient"><div class="grid"></div></div>
+
+<header class="nav">
+  <div class="nav-inner">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="brand-name">mdrise</span>
+    </div>
+    <div class="lang-switch" role="tablist" aria-label="language">
+      <button type="button" data-lang="zh" class="active">中文</button>
+      <button type="button" data-lang="en">English</button>
+    </div>
+  </div>
+</header>
+
+<aside class="toc" aria-label="table of contents">
+  <div class="toc-toggle-wrap">
+    <button class="toc-toggle" type="button" aria-expanded="true" aria-controls="toc-list" aria-label="toggle table of contents">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="4" y1="6" x2="20" y2="6"/>
+        <line x1="4" y1="12" x2="14" y2="12"/>
+        <line x1="4" y1="18" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+  <nav id="toc-list" class="toc-list"></nav>
+</aside>
+
+<div class="page">
+
+<main>
+
+  <div class="hero">
+    <h1>mdrise</h1>
+    <p class="tagline"><strong>让 Markdown 升维成可分享的 HTML · Elevate any Markdown into a shareable HTML.</strong></p>
+    <div class="lang-links">
+      <a href="#中文" data-jump="zh">🇨🇳 中文</a>
+      <span class="sep">·</span>
+      <a href="#english" data-jump="en">🇺🇸 English</a>
+    </div>
+    <div class="hero-divider"></div>
+  </div>
+
+  <!-- ============== 中文 ============== -->
+  <section class="lang-section active" id="lang-zh" lang="zh-Hans">
+    <article class="content">
+
+      <h2 id="背景-markdown-真的要凉了吗"><a id="中文"></a>背景：Markdown 真的要凉了吗？</h2>
+
+      <p>2026 年初，Anthropic 工程师 Thariq 发了一篇长文《<strong>Using Claude Code: The Unreasonable Effectiveness of HTML</strong>》，全网炸了——929 评论、3.4K 转发、14K 赞、1000 万阅读：</p>
+
+      <figure class="tweet">
+        <img src="./thariq-tweet.png" alt="Thariq 原推：Using Claude Code — The Unreasonable Effectiveness of HTML" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+        <div class="tweet-fallback" style="display:none;">[ ./thariq-tweet.png — image not found alongside this HTML ]</div>
+      </figure>
+
+      <p>量子位翻成中文标题叫《<a href="https://x.com/trq212/status/2052809885763747935">Markdown 要凉…卡帕西也站 HTML 了</a>》。核心论点：</p>
+
+      <blockquote>我现在不管是做规划、需求设计、方案探索，还是代码审查和整理报告，全都在用 HTML。</blockquote>
+
+      <p>文章列了五条 HTML &gt; Markdown 的理由：信息密度、可读性、零成本分享、交互能力、快乐感。</p>
+
+      <h2 id="但是-markdown-没死">但是 — Markdown 没死，只是退到了「源格式」</h2>
+
+      <p>仔细看 Thariq 自己说的："我<strong>几乎不亲手编辑这些文件</strong>了，更多是拿它们当规范、参考文档或者头脑风暴的产出。"</p>
+
+      <p>也就是说，<strong>AI 写的还是 Markdown</strong>。<strong>人类要读的才是 HTML</strong>。</p>
+
+      <p>Markdown 仍然有 5 个 HTML 替代不了的功能：</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>功能</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Git diff</strong></td><td>行级 diff 干净可读；HTML 的标签噪音让 PR review 几乎不可能</td></tr>
+            <tr><td><strong>可移植</strong></td><td>任何编辑器、任何系统、任何工具链都认</td></tr>
+            <tr><td><strong>不污染 token</strong></td><td>喂给 LLM 时没有标签噪音，纯信息密度</td></tr>
+            <tr><td><strong>Source of truth</strong></td><td>一份源，能导出 HTML / PDF / DOCX / PPTX 全套</td></tr>
+            <tr><td><strong>Version control</strong></td><td>30 年的工具积累全部适用</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>所以 Markdown 的位置已经在变。未来 AI 系统的架构大概率是：</p>
+
+<pre class="diagram"><code>AI
+ ↓
+MD / JSON / AST          ← 源格式（Git 层）
+ ↓
+HTML Component Tree      ← 渲染层（人类阅读）
+ ↓
+人类阅读</code></pre>
+
+      <p><strong>Markdown 会逐渐退化成：</strong></p>
+
+      <ul>
+        <li>导出格式 — 一份源可以导出多种成品</li>
+        <li>兼容层 — 跟旧工具链握手</li>
+        <li>纯文本 fallback — 没法渲染 HTML 时降级</li>
+        <li>Git 层 — 版本控制、diff、review</li>
+      </ul>
+
+      <p><strong>而不是主交互层。</strong> 主交互层是 HTML（甚至按 Karpathy 的说法，终点可能是某种直接生成的交互视频）。</p>
+
+      <h2 id="html-自己的短板">HTML 自己的短板，恰好需要 MD 来补</h2>
+
+      <p>文章评论区有人问：HTML 这么好，那<strong>版本控制怎么办</strong>？HTML 的 diff 是出了名的"吵"——一改动几行内容，标签、样式、属性的变化淹没掉真正的差异，让 PR review 几乎不可能。Thariq 自己也承认：这是 HTML 最大的短板，没有完美解决方案。</p>
+
+      <p>但其实有——只是答案不在 HTML 这一侧。</p>
+
+      <p><strong>让 MD 留在 Git 里。HTML 只在需要给人看的时候按需生成。</strong></p>
+
+<pre class="diagram"><code>.md  →  Git 仓库（version control / diff / review / source of truth）
+ ↓ mdrise（按需）
+.html  →  分享 / 阅读 / 邮件 / 打印（人类视觉成品）</code></pre>
+
+      <div class="bridge" aria-hidden="true">
+        <div class="bridge-node"><div class="label">.md</div><div class="desc">Git 层 · 源格式</div></div>
+        <div class="bridge-arrow">→</div>
+        <div class="bridge-node"><div class="label">.html</div><div class="desc">人类阅读 · 视觉成品</div></div>
+      </div>
+
+      <p>这是 <code>mdrise</code> 设计上最关键的一点：你不需要在 "Markdown vs HTML" 里选边，而是让它们<strong>各干各的事</strong>——</p>
+
+      <ul>
+        <li><strong>MD 干 MD 擅长的</strong>：Git diff、可移植、不污染 token、source of truth、version control</li>
+        <li><strong>HTML 干 HTML 擅长的</strong>：信息密度、可读性、零成本分享、交互、阅读快乐</li>
+      </ul>
+
+      <p><code>mdrise</code> 就是这两者中间那个<strong>自动桥</strong>：AI 写 <code>.md</code> 提交进 Git；需要给人看的时候，一句"做成网页"就生成 <code>.html</code>。<code>.html</code> 是临时视觉成品——扔了再生，零成本。</p>
+
+      <p>这就是为什么"AI 时代是颠覆性的"——不是因为 Markdown 死了，而是因为<strong>它的角色从「人类的主要交互层」退回了「机器的源格式」</strong>。它仍然不可替代，只是位置变了。</p>
+
+      <h2 id="这是什么">这是什么</h2>
+
+      <p>一个 Claude skill。装上之后，让 Claude 把任何 <code>.md</code> 转成单文件 HTML，具备：</p>
+
+      <ul>
+        <li><strong>文字一字不改</strong> — 不 paraphrase、不"修正"、不省略。源里有什么，HTML 里就有什么。</li>
+        <li><strong>视觉自动判断</strong> — Claude 先识别内容媒介（文档 / 书页 / 落地页 / 笔记…），再 pick 字体、色板、版式。不是统一模板。</li>
+        <li><strong>侧边浮动目录</strong> — 自动从 H2 / H3 生成，永久可见的展开图标随滚动跟着走，scroll-spy 高亮当前章节。</li>
+        <li><strong>17+ 种文字脚本支持</strong> — 拉丁、中日韩、阿拉伯希伯来（RTL）、西里尔、印地、泰米尔、孟加拉、泰文、高棉、缅文、格鲁吉亚、亚美尼亚、埃塞俄比亚……每种都有字体推荐表，Noto 家族兜底。</li>
+        <li><strong>反 AI slop 三条铁律</strong> — 禁用 Inter / Roboto / Arial、禁用紫渐变白底 hero、禁止把书页美学塞给非文学内容。</li>
+        <li><strong>单文件输出</strong> — CSS 全内联，唯一外部资源是 Google Fonts CDN。一个 <code>.html</code> 文件，邮件附件就能传。</li>
+      </ul>
+
+      <h2 id="不重复劳动">不重复劳动：源没变就不重渲</h2>
+
+      <p><code>mdrise</code> 把 <code>.md ↔ .html</code> 当成一对镜像在维护，不是无脑触发。每次生成的 HTML 头部都会嵌入一段源文件的 SHA-256 指纹：</p>
+
+<pre class="html-illustrative"><code><span class="tok-punct">&lt;</span><span class="tok-tag">meta</span> <span class="tok-attr">name</span><span class="tok-punct">=</span><span class="tok-str">"mdrise-source-hash"</span> <span class="tok-attr">content</span><span class="tok-punct">=</span><span class="tok-str">"sha256:9c01140d59119d59e0..."</span><span class="tok-punct">&gt;</span>
+<span class="tok-punct">&lt;</span><span class="tok-tag">meta</span> <span class="tok-attr">name</span><span class="tok-punct">=</span><span class="tok-str">"mdrise-generated-at"</span> <span class="tok-attr">content</span><span class="tok-punct">=</span><span class="tok-str">"2026-05-12T09:08:27Z"</span><span class="tok-punct">&gt;</span></code></pre>
+
+      <p>下次你（或 Claude 自己）想"做成网页"的时候，skill 先读现有 HTML 的 hash，跟当前 MD 算一遍 hash 对比，按这张表决定：</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>状态</th><th>行为</th></tr></thead>
+          <tbody>
+            <tr><td><code>.html</code> 不存在</td><td>直接生成</td></tr>
+            <tr><td><code>.html</code> 存在，但 hash 跟源不匹配（MD 改过了）</td><td><strong>直接重渲</strong> — 典型场景：AI 刚改完 README</td></tr>
+            <tr><td><code>.html</code> 存在，hash 跟源一致（in sync）</td><td><strong>询问你</strong> 要不要重渲，不擅自动手</td></tr>
+            <tr><td>你说 "force / 重新生成"</td><td>跳过检查直接重渲</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>这意味着 <code>mdrise</code> 可以被反复调用而不污染文件——每次对话只要提到 README，不会重复跑一遍 HTML 生成。这才是"<strong>自动维护 markdown→HTML 镜像</strong>"该有的样子。</p>
+
+      <p>为什么用 hash 不用文件 mtime：<code>git clone</code> 会把所有文件的 mtime 重置成 clone 时间，mtime 不可信。Hash 锚定的是源<strong>内容</strong>，跨 clone 跨设备都准。</p>
+
+      <h2 id="实战示例">实战示例（5个真实测试）</h2>
+
+      <p>每个都跑了 with-skill 和 baseline（不装 skill 让 Claude 裸做）。点链接看实际渲染效果：</p>
+
+      <div class="table-wrap examples">
+        <table>
+          <thead>
+            <tr><th>内容</th><th>语言</th><th>媒介</th><th>with mdrise</th><th>baseline</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Lumie 项目自检报告</td>
+              <td>中文</td>
+              <td>技术文档</td>
+              <td><a href="./examples/lumie-zh-with-skill.html">docs 风、玉青色、左侧 ToC</a></td>
+              <td><a href="./examples/lumie-zh-baseline.html">紫粉 aurora 渐变 + 玻璃卡片（AI 默认）</a></td>
+            </tr>
+            <tr>
+              <td>搬到新城市的第一年</td>
+              <td>中文</td>
+              <td>个人随笔</td>
+              <td><a href="./examples/essay-zh-with-skill.html">米纸 + 霞鹜文楷 + ❖ + 「目」字 toggle</a></td>
+              <td><a href="./examples/essay-zh-baseline.html">也能凑合，但没 ToC</a></td>
+            </tr>
+            <tr>
+              <td>Glimpse JSON 可视化</td>
+              <td>英文</td>
+              <td>产品落地页</td>
+              <td><a href="./examples/glimpse-en-with-skill.html">Linear 暗黑 + Geist + 电光绿</a></td>
+              <td><a href="./examples/glimpse-en-baseline.html">dark + <strong>Inter</strong> + 通用卡片</a></td>
+            </tr>
+            <tr>
+              <td>鏡 Kagami SSG</td>
+              <td>日文</td>
+              <td>技术 README</td>
+              <td><a href="./examples/kagami-ja-with-skill.html">Vercel / Linear 暗黑 + Noto Sans JP</a></td>
+              <td><a href="./examples/kagami-ja-baseline.html">Noto Serif JP body + 印章风（书味跑偏）</a></td>
+            </tr>
+            <tr>
+              <td>大马士革晨咖啡</td>
+              <td>阿拉伯文</td>
+              <td>文学随笔</td>
+              <td><a href="./examples/coffee-ar-with-skill.html">RTL + Amiri + Aref Ruqaa + 镜像 ToC + 变音符号验证</a></td>
+              <td><a href="./examples/coffee-ar-baseline.html">RTL 对了，字体也对，但缺 ToC 和 Latin 隔离</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="安装">安装</h2>
+
+      <h3 id="claude-code-cli-zh">Claude Code CLI</h3>
+
+<pre><code>/plugin marketplace add &lt;你的github&gt;/mdrise
+/reload-plugins</code></pre>
+
+      <p>或者本地装：</p>
+
+<pre><code>claude --plugin-dir ./mdrise.skill</code></pre>
+
+      <h3 id="claude-桌面-网页">Claude 桌面 / 网页</h3>
+
+      <p>把 <code>mdrise.skill</code> 文件传到 <a href="https://claude.ai">claude.ai</a> 的 skills 上传入口。</p>
+
+      <h2 id="使用">使用</h2>
+
+      <p>直接跟 Claude 说人话：</p>
+
+<pre><code>&gt; 把 README.md 做成网页
+&gt; render this article as html
+&gt; 美化这篇文章
+&gt; turn my notes into a webpage
+&gt; 做个项目主页
+&gt; 排版一下这个 markdown</code></pre>
+
+      <p>或者最自然的工作流：让 Claude 写完 <code>plan.md</code> / <code>report.md</code> 之后，跟一句"<strong>做成网页</strong>"。</p>
+
+      <p>工作目录里有 <code>README.md</code> 时，任何"做成网页 / 美化 / 做个主页"类的请求会自动选这个 skill——这是写在 description 里的硬规则。</p>
+
+      <h2 id="设计哲学">设计哲学</h2>
+
+      <p><strong>两个不可变约束：</strong></p>
+
+      <ol>
+        <li><strong>文字一字不差</strong>——所有 enhancement 都是视觉层的加法，从不替换或重述源文字。</li>
+        <li><strong>视觉必须升维</strong>——目标是"分得出去"的水平，不是 default browser rendering。</li>
+      </ol>
+
+      <p><strong>核心方法论：先判断媒介，再挑美学。</strong></p>
+
+      <ul>
+        <li>文学 → 书页（米纸 + 衬线正文 + 古典分割符 + 窄栏）</li>
+        <li>技术 → 文档站（Stripe / Vercel / Anthropic docs 调性，干净屏幕原生）</li>
+        <li>产品 → 落地页（Linear / Resend 调性，现代设计感）</li>
+        <li>这条边界是核心——书页美学<strong>只</strong>给文学内容。技术 / 产品文档用了就是 category error。</li>
+      </ul>
+
+      <p><strong>多语言策略：</strong> 先识别脚本（CJK / 阿拉伯 / 西里尔 / 印地…），再挑字体覆盖（Noto 家族兜底），再判断方向（LTR / RTL）和布局。RTL 用逻辑 CSS（<code>padding-inline-start</code> 等）而不是 <code>left / right</code>。</p>
+
+      <p>完整设计原则见 <a href="SKILL.md">SKILL.md</a>。</p>
+
+      <h2 id="贡献-反馈">贡献 &amp; 反馈</h2>
+
+      <p>欢迎 issue 和 PR。如果 <code>mdrise</code> 对你的某个特定内容类型不奏效，请：</p>
+
+      <ol>
+        <li>发个 issue，贴上源 <code>.md</code> 和你期望的视觉方向</li>
+        <li>我会用同样的 4 步迭代法（draft skill → run subagents → review → revise）把它修进去</li>
+      </ol>
+
+      <h2 id="致谢-打赏">致谢 / 打赏</h2>
+
+      <p><code>mdrise</code> 完全开源（MIT）。如果它帮你省下了排版的时间，或者你想支持我继续打磨它，欢迎请我喝杯咖啡：</p>
+
+      <ul>
+        <li><strong>Buy Me a Coffee</strong>：<a href="https://buymeacoffee.com/midasovorh">https://buymeacoffee.com/midasovorh</a> （国际）</li>
+        <li><strong>微信 / 支付宝</strong>：</li>
+      </ul>
+      <p><img src="./donation.png" alt="微信 / 支付宝 收款码" width="360" style="max-width:360px; border-radius:10px; border:1px solid rgba(200,255,58,0.18); background:#0e0f12; padding:8px; display:block; margin:8px 0 0 0;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><span style="display:none; padding:14px 16px; border:1px dashed rgba(200,255,58,0.35); border-radius:8px; color:rgba(235,240,235,0.55); font-family:'Geist Mono',monospace; font-size:12px;">./donation.png — 把微信 / 支付宝收款码二维码图片保存到这里</span></p>
+
+      <p>接受各种形式的支持：把 mdrise 转发给一个用 Claude 写 README 的朋友，给仓库点个 ⭐，或者用它做出来一份漂亮的 HTML 然后发给我看看——那就是最大的鼓励。</p>
+
+      <h2 id="license-zh">License</h2>
+
+      <p>MIT。详见 <a href="LICENSE">LICENSE</a>。</p>
+
+    </article>
+  </section>
+
+  <!-- ============== English ============== -->
+  <section class="lang-section" id="lang-en" lang="en">
+    <article class="content">
+
+      <h2 id="background"><a id="english"></a>Background — is Markdown really dying?</h2>
+
+      <p>In early 2026, Anthropic engineer Thariq published an essay titled <strong>"Using Claude Code: The Unreasonable Effectiveness of HTML"</strong> that went viral — 929 comments, 3.4K retweets, 14K likes, 10M views:</p>
+
+      <figure class="tweet">
+        <img src="./thariq-tweet.png" alt="Thariq's original tweet: Using Claude Code — The Unreasonable Effectiveness of HTML" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+        <div class="tweet-fallback" style="display:none;">[ ./thariq-tweet.png — image not found alongside this HTML ]</div>
+      </figure>
+
+      <p>The core claim:</p>
+
+      <blockquote>Whether I'm planning, drafting specs, exploring solutions, reviewing code, or organizing reports — I now do all of it in HTML.</blockquote>
+
+      <p>The essay lists five reasons HTML beats Markdown: density, readability, zero-friction sharing, interaction, and joy. Every one of them is true.</p>
+
+      <h2 id="but-markdown-isnt-dead">But — Markdown isn't dead. It just retreated to "source format."</h2>
+
+      <p>Read what Thariq actually said: "I rarely <strong>hand-edit</strong> these files anymore — I use them as specs, reference docs, brainstorming output. If I need to change something, I usually just throw it at Claude."</p>
+
+      <p>In other words: <strong>AI still writes Markdown</strong>. <strong>Humans still read HTML</strong>.</p>
+
+      <p>Markdown retains five functions that HTML can't replace:</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Function</th><th>Why it survives</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Git diff</strong></td><td>Line-level diffs are clean and reviewable. HTML's tag noise makes PR review nearly impossible.</td></tr>
+            <tr><td><strong>Portability</strong></td><td>Every editor, every system, every toolchain understands it.</td></tr>
+            <tr><td><strong>No token pollution</strong></td><td>When fed to LLMs, no tag overhead — pure information density.</td></tr>
+            <tr><td><strong>Source of truth</strong></td><td>One source exports to HTML / PDF / DOCX / PPTX.</td></tr>
+            <tr><td><strong>Version control</strong></td><td>30 years of accumulated tooling apply directly.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>So Markdown's position is shifting. The likely future architecture of AI systems looks like this:</p>
+
+<pre class="diagram"><code>AI
+ ↓
+MD / JSON / AST          ← source format (Git layer)
+ ↓
+HTML Component Tree      ← render layer (human reading)
+ ↓
+Human reader</code></pre>
+
+      <p><strong>Markdown will gradually become:</strong></p>
+
+      <ul>
+        <li>An export format — one source, many downstream artifacts</li>
+        <li>A compatibility layer — shaking hands with older toolchains</li>
+        <li>A plain-text fallback — graceful degradation when HTML can't render</li>
+        <li>A Git layer — version control, diff, review</li>
+      </ul>
+
+      <p><strong>Not the primary interaction layer.</strong> That's HTML — and eventually, per Karpathy, perhaps some directly-generated interactive video.</p>
+
+      <h2 id="htmls-weakness">HTML's weakness is exactly where MD fills the gap</h2>
+
+      <p>Commenters on Thariq's essay asked the obvious question: HTML is great, but what about <strong>version control</strong>? HTML diffs are notoriously noisy — change a few lines of content, and the tag, style, and attribute churn drowns out the actual difference. PR review becomes nearly impossible. Thariq himself acknowledged: this is HTML's biggest weakness, with no perfect solution.</p>
+
+      <p>But there is a solution — it just isn't on the HTML side.</p>
+
+      <p><strong>Keep MD in Git. Render HTML on demand, only when humans need to read it.</strong></p>
+
+<pre class="diagram"><code>.md  →  Git repo (version control / diff / review / source of truth)
+ ↓ mdrise (on demand)
+.html  →  share / read / email / print (human visual artifact)</code></pre>
+
+      <div class="bridge" aria-hidden="true">
+        <div class="bridge-node"><div class="label">.md</div><div class="desc">Git layer · source format</div></div>
+        <div class="bridge-arrow">→</div>
+        <div class="bridge-node"><div class="label">.html</div><div class="desc">human reading · visual artifact</div></div>
+      </div>
+
+      <p>This is the most important point in <code>mdrise</code>'s design. You don't have to pick a side in "Markdown vs HTML." You let each <strong>do what it does best</strong>:</p>
+
+      <ul>
+        <li><strong>MD does what MD does well</strong>: Git diff, portability, no token pollution, source of truth, version control</li>
+        <li><strong>HTML does what HTML does well</strong>: information density, readability, zero-cost sharing, interaction, reading pleasure</li>
+      </ul>
+
+      <p><code>mdrise</code> is the <strong>automatic bridge</strong> between them: AI writes the <code>.md</code> and commits it to Git; when a human needs to read it, one "make it a webpage" produces the <code>.html</code>. The <code>.html</code> is a disposable visual artifact — regenerate any time, zero cost.</p>
+
+      <p>This is what makes the AI era genuinely disruptive — not that Markdown died, but that <strong>its role shifted from "primary interaction layer for humans" back to "source format for machines."</strong> It's still indispensable; the position just changed.</p>
+
+      <h2 id="what-this-is">What this is</h2>
+
+      <p>A Claude skill. Install it, then ask Claude to convert any <code>.md</code> into a single-file HTML that:</p>
+
+      <ul>
+        <li><strong>Preserves every word verbatim</strong> — no paraphrasing, no "fixing," no omission. What's in the source is in the HTML.</li>
+        <li><strong>Auto-selects visual style</strong> — Claude first identifies the content's medium (docs / book page / landing / notebook…) then picks fonts, palette, layout. Not a uniform template.</li>
+        <li><strong>Floats a side table-of-contents</strong> — auto-generated from H2 / H3, a persistent toggle stays visible as you scroll, scroll-spy highlights the current section.</li>
+        <li><strong>Supports 17+ writing scripts</strong> — Latin, CJK, Arabic &amp; Hebrew (RTL), Cyrillic, Devanagari, Tamil, Bengali, Thai, Khmer, Burmese, Georgian, Armenian, Ethiopic… each with a font recommendation table, with the Noto family as universal fallback.</li>
+        <li><strong>Three anti-slop rules</strong> — no Inter / Roboto / Arial, no purple-gradient-on-white hero, no book-page aesthetics on non-literary content.</li>
+        <li><strong>Single-file output</strong> — all CSS inlined, only external resource is Google Fonts. One <code>.html</code> file you can send as an email attachment.</li>
+      </ul>
+
+      <p>Not just slapping marked.js + a default Bootstrap theme on it — that turns ugly markdown into ugly markdown rendered. The goal is for Claude to <strong>recognize what kind of document this is</strong> and <strong>pick a visual language that matches</strong>: a technical README gets Vercel / Stripe docs vibes, a personal essay gets a printed book page, a product launch gets a Linear-style landing page, an Arabic literary piece gets a right-to-left book page — all auto-decided.</p>
+
+      <h2 id="no-redundant-work">No redundant work — only rerender when the source changed</h2>
+
+      <p><code>mdrise</code> treats <code>.md ↔ .html</code> as a maintained mirror pair, not a blind trigger. Each generated HTML embeds a SHA-256 fingerprint of the source in the head:</p>
+
+<pre class="html-illustrative"><code><span class="tok-punct">&lt;</span><span class="tok-tag">meta</span> <span class="tok-attr">name</span><span class="tok-punct">=</span><span class="tok-str">"mdrise-source-hash"</span> <span class="tok-attr">content</span><span class="tok-punct">=</span><span class="tok-str">"sha256:9c01140d59119d59e0..."</span><span class="tok-punct">&gt;</span>
+<span class="tok-punct">&lt;</span><span class="tok-tag">meta</span> <span class="tok-attr">name</span><span class="tok-punct">=</span><span class="tok-str">"mdrise-generated-at"</span> <span class="tok-attr">content</span><span class="tok-punct">=</span><span class="tok-str">"2026-05-12T09:08:27Z"</span><span class="tok-punct">&gt;</span></code></pre>
+
+      <p>Next time you (or Claude) wants to "make it a webpage", the skill reads the hash from the existing HTML, computes a fresh hash of the current MD, and decides from this table:</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>State</th><th>Behavior</th></tr></thead>
+          <tbody>
+            <tr><td><code>.html</code> doesn't exist</td><td>Generate immediately</td></tr>
+            <tr><td><code>.html</code> exists but hash doesn't match (MD was edited)</td><td><strong>Regenerate</strong> — typical case: AI just modified README</td></tr>
+            <tr><td><code>.html</code> exists and hash matches (in sync)</td><td><strong>Ask you</strong> before regenerating, don't act blindly</td></tr>
+            <tr><td>You say "force / 重新生成"</td><td>Skip the check, always regenerate</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>This makes <code>mdrise</code> safely idempotent — invoke it as often as you want; it won't churn out a new HTML every conversation that happens to mention the README. That's what "<strong>automatic maintenance of a markdown→HTML mirror</strong>" actually means.</p>
+
+      <p>Why hash instead of file mtime: <code>git clone</code> resets every file's mtime to the clone moment, so mtime is unreliable. Hashes anchor to source <strong>content</strong> — consistent across clones and devices.</p>
+
+      <h2 id="examples">Real-world examples (5 test cases)</h2>
+
+      <p>Each was rendered both with-skill and as a no-skill baseline. Click any link to see the actual rendered output:</p>
+
+      <div class="table-wrap examples">
+        <table>
+          <thead>
+            <tr><th>Content</th><th>Language</th><th>Medium</th><th>With mdrise</th><th>Baseline</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Lumie project audit report</td>
+              <td>Chinese</td>
+              <td>technical docs</td>
+              <td><a href="./examples/lumie-zh-with-skill.html">docs vibe, jade-teal, left-rail ToC</a></td>
+              <td><a href="./examples/lumie-zh-baseline.html">purple aurora gradient + glass cards (AI default)</a></td>
+            </tr>
+            <tr>
+              <td>First year in a new city</td>
+              <td>Chinese</td>
+              <td>personal essay</td>
+              <td><a href="./examples/essay-zh-with-skill.html">rice-paper + LXGW WenKai + ❖ + 「目」toggle</a></td>
+              <td><a href="./examples/essay-zh-baseline.html">OK-ish but no ToC</a></td>
+            </tr>
+            <tr>
+              <td>Glimpse JSON visualizer</td>
+              <td>English</td>
+              <td>product launch</td>
+              <td><a href="./examples/glimpse-en-with-skill.html">Linear-dark + Geist + electric lime</a></td>
+              <td><a href="./examples/glimpse-en-baseline.html">dark + <strong>Inter</strong> + generic cards</a></td>
+            </tr>
+            <tr>
+              <td>鏡 Kagami SSG</td>
+              <td>Japanese</td>
+              <td>technical README</td>
+              <td><a href="./examples/kagami-ja-with-skill.html">Vercel / Linear dark + Noto Sans JP</a></td>
+              <td><a href="./examples/kagami-ja-baseline.html">Noto Serif JP body + seal motif (book-trap)</a></td>
+            </tr>
+            <tr>
+              <td>Damascus morning coffee</td>
+              <td>Arabic</td>
+              <td>literary essay</td>
+              <td><a href="./examples/coffee-ar-with-skill.html">RTL + Amiri + Aref Ruqaa + mirrored ToC + diacritic verification</a></td>
+              <td><a href="./examples/coffee-ar-baseline.html">RTL applied, fonts good, but no ToC, no Latin isolation</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="install">Install</h2>
+
+      <h3 id="claude-code-cli-en">Claude Code CLI</h3>
+
+<pre><code>/plugin marketplace add &lt;your-github&gt;/mdrise
+/reload-plugins</code></pre>
+
+      <p>Or install locally:</p>
+
+<pre><code>claude --plugin-dir ./mdrise.skill</code></pre>
+
+      <h3 id="claude-desktop-web">Claude desktop / web</h3>
+
+      <p>Upload <code>mdrise.skill</code> via the skills uploader on <a href="https://claude.ai">claude.ai</a>.</p>
+
+      <h2 id="use">Use</h2>
+
+      <p>Just talk to Claude:</p>
+
+<pre><code>&gt; turn README.md into a webpage
+&gt; render this article as html
+&gt; make my notes look nice
+&gt; create a project homepage
+&gt; 做成网页
+&gt; 美化这篇文章</code></pre>
+
+      <p>The most natural workflow: after Claude finishes writing a <code>plan.md</code> / <code>report.md</code>, just say "<strong>make it a webpage</strong>."</p>
+
+      <p>When <code>README.md</code> exists in the working directory, any "make it a webpage / homepage / look nice" request auto-routes to this skill — that's a hard rule baked into the skill description.</p>
+
+      <h2 id="design-philosophy">Design philosophy</h2>
+
+      <p><strong>Two invariants:</strong></p>
+
+      <ol>
+        <li><strong>Text fidelity</strong> — every visual enhancement is additive. Never replace or paraphrase source text.</li>
+        <li><strong>Visual elevation</strong> — target is "shareable" quality, not default browser rendering.</li>
+      </ol>
+
+      <p><strong>Core method: identify the medium first, then pick aesthetics.</strong></p>
+
+      <ul>
+        <li>Literary → book page (warm paper + serif body + classical dividers + narrow column)</li>
+        <li>Technical → docs site (Stripe / Vercel / Anthropic docs vibe — clean, screen-native)</li>
+        <li>Product → landing page (Linear / Resend vibe — modern, designed)</li>
+        <li>This boundary is central. Book-page aesthetics belong to literary content <strong>only</strong>. Using them on technical / product docs is a category error.</li>
+      </ul>
+
+      <p><strong>Multi-language strategy:</strong> identify script first (CJK / Arabic / Cyrillic / Devanagari…), pick fonts that cover it (Noto family as safe default), then handle direction (LTR / RTL) and layout. RTL uses logical CSS (<code>padding-inline-start</code>, etc.), not <code>left</code> / <code>right</code>.</p>
+
+      <p>Full design principles: see <a href="SKILL.md">SKILL.md</a>.</p>
+
+      <h2 id="contributing">Contributing</h2>
+
+      <p>Issues and PRs welcome. If <code>mdrise</code> fails on a content type you care about:</p>
+
+      <ol>
+        <li>Open an issue with the source <code>.md</code> and the visual direction you want</li>
+        <li>I'll iterate on the skill using the same 4-step loop (draft → subagent runs → review → revise)</li>
+      </ol>
+
+      <h2 id="sponsor-donate">Sponsor / Donate</h2>
+
+      <p><code>mdrise</code> is fully open source (MIT). If it saved you time on layout, or you want to support continued polish, buy me a coffee:</p>
+
+      <ul>
+        <li><strong>Buy Me a Coffee</strong> (international): <a href="https://buymeacoffee.com/midasovorh">https://buymeacoffee.com/midasovorh</a></li>
+        <li><strong>WeChat / Alipay</strong>:</li>
+      </ul>
+      <p><img src="./donation.png" alt="WeChat / Alipay donation QR" width="360" style="max-width:360px; border-radius:10px; border:1px solid rgba(200,255,58,0.18); background:#0e0f12; padding:8px; display:block; margin:8px 0 0 0;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><span style="display:none; padding:14px 16px; border:1px dashed rgba(200,255,58,0.35); border-radius:8px; color:rgba(235,240,235,0.55); font-family:'Geist Mono',monospace; font-size:12px;">./donation.png — save your WeChat / Alipay QR image here</span></p>
+
+      <p>Any support welcome: share <code>mdrise</code> with someone who writes README files with Claude, star the repo, or render something beautiful with it and send me the result — that's the biggest encouragement.</p>
+
+      <h2 id="license-en">License</h2>
+
+      <p>MIT. See <a href="LICENSE">LICENSE</a>.</p>
+
+    </article>
+  </section>
+
+  <!-- closing manifesto: shown for both languages -->
+  <div class="manifesto">
+    <blockquote>
+      <span class="line dim">"Markdown is dead." <span class="attrib">— Thariq, 2026</span></span>
+      <span class="line bright">"Markdown isn't dead — it just finally found its right place." <span class="attrib">— mdrise</span></span>
+    </blockquote>
+  </div>
+
+</main>
+
+</div>
+
+<script>
+(function () {
+  var STORAGE_KEY = 'mdrise.lang';
+  var langButtons = document.querySelectorAll('.lang-switch button');
+  var sections = {
+    zh: document.getElementById('lang-zh'),
+    en: document.getElementById('lang-en')
+  };
+  var tocList = document.getElementById('toc-list');
+  var tocToggle = document.querySelector('.toc-toggle');
+
+  function savedLang() {
+    try { return localStorage.getItem(STORAGE_KEY); } catch (_) { return null; }
+  }
+  function setSavedLang(l) {
+    try { localStorage.setItem(STORAGE_KEY, l); } catch (_) {}
+  }
+
+  function activeLang() {
+    var h = decodeURIComponent(window.location.hash || '').toLowerCase();
+    if (h === '#english' || h === '#en') return 'en';
+    if (h === '#中文' || h === '#zh') return 'zh';
+    var saved = savedLang();
+    if (saved === 'zh' || saved === 'en') return saved;
+    return 'zh';
+  }
+
+  function buildToc(lang) {
+    var section = sections[lang];
+    if (!section) return;
+    tocList.innerHTML = '';
+    var headings = section.querySelectorAll('h2[id], h3[id]');
+    headings.forEach(function (h) {
+      var a = document.createElement('a');
+      a.href = '#' + h.id;
+      a.textContent = h.textContent;
+      if (h.tagName === 'H3') a.className = 'h3';
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        var target = document.getElementById(h.id);
+        if (target) {
+          var rect = target.getBoundingClientRect();
+          window.scrollTo({ top: window.scrollY + rect.top - 80, behavior: 'smooth' });
+        }
+        history.replaceState(null, '', '#' + h.id);
+      });
+      tocList.appendChild(a);
+    });
+    setupScrollSpy(section);
+  }
+
+  var io;
+  function setupScrollSpy(section) {
+    if (io) io.disconnect();
+    var links = [].slice.call(tocList.querySelectorAll('a'));
+    var map = new Map();
+    links.forEach(function (a) {
+      map.set(a.getAttribute('href').slice(1), a);
+    });
+    io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          links.forEach(function (a) { a.classList.remove('active'); });
+          var a = map.get(e.target.id);
+          if (a) a.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-15% 0px -70% 0px' });
+    section.querySelectorAll('h2[id], h3[id]').forEach(function (h) {
+      io.observe(h);
+    });
+  }
+
+  function setLang(lang, opts) {
+    opts = opts || {};
+    if (!sections[lang]) lang = 'zh';
+    Object.keys(sections).forEach(function (k) {
+      sections[k].classList.toggle('active', k === lang);
+    });
+    langButtons.forEach(function (b) {
+      b.classList.toggle('active', b.getAttribute('data-lang') === lang);
+    });
+    document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-Hans' : 'en');
+    if (!opts.skipSave) setSavedLang(lang);
+    buildToc(lang);
+    if (opts.scrollTop) window.scrollTo({ top: 0 });
+  }
+
+  setLang(activeLang(), { skipSave: true });
+
+  langButtons.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var l = b.getAttribute('data-lang');
+      setLang(l, { scrollTop: true });
+      history.replaceState(null, '', l === 'en' ? '#english' : '#中文');
+    });
+  });
+
+  document.querySelectorAll('[data-jump]').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var l = a.getAttribute('data-jump');
+      setLang(l, { scrollTop: true });
+      history.replaceState(null, '', l === 'en' ? '#english' : '#中文');
+    });
+  });
+
+  window.addEventListener('hashchange', function () {
+    var h = decodeURIComponent(window.location.hash || '').toLowerCase();
+    if (h === '#english' || h === '#en') setLang('en');
+    else if (h === '#中文' || h === '#zh') setLang('zh');
+  });
+
+  var tocOpen = true;
+  if (window.matchMedia && window.matchMedia('(max-width: 768px)').matches) {
+    tocOpen = false;
+    tocList.setAttribute('hidden', '');
+    tocToggle.setAttribute('aria-expanded', 'false');
+  }
+  tocToggle.addEventListener('click', function () {
+    tocOpen = !tocOpen;
+    if (tocOpen) {
+      tocList.removeAttribute('hidden');
+      tocToggle.setAttribute('aria-expanded', 'true');
+    } else {
+      tocList.setAttribute('hidden', '');
+      tocToggle.setAttribute('aria-expanded', 'false');
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

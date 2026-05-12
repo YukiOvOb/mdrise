@@ -1,0 +1,50 @@
+{
+  "skill_name": "md-to-styled-html",
+  "evals": [
+    {
+      "id": 0,
+      "name": "lumie-project-status-zh",
+      "prompt": "把这个 Markdown 文件转成一个独立的、风格化的 HTML 网页。文字一字不能改，但视觉上要看起来像精心设计过的项目主页。保存到 C:\\Users\\Midas\\Desktop\\MD_HTML\\md-to-styled-html-workspace\\iteration-1\\eval-0-lumie-project-status-zh\\<config>\\outputs\\output.html，其中 <config> 是 with_skill 或 without_skill。",
+      "input_file": "C:\\Users\\Midas\\Desktop\\Lumie-mobile\\项目最终自检报告.md",
+      "tests": [
+        "Every visible character from the source MD appears in the rendered HTML (no paraphrasing, no shortening)",
+        "Output is a single self-contained HTML file; only external resource is Google Fonts via <link>",
+        "Typography choice avoids generic AI defaults (no Inter/Roboto/Arial/system-ui as the only font)",
+        "Color palette is intentional (not just black on white), with deliberate accent color",
+        "Tables render with proper styling, not raw <table> defaults",
+        "Aesthetic direction matches content tone (technical project status — should feel structured and confident, not whimsical)",
+        "Chinese characters render with an appropriate CJK font (not browser default fallback)"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "personal-essay-zh",
+      "prompt": "把这个 Markdown 散文转成一个独立的、风格化的 HTML 网页。文字一字不能改。视觉上要match这种文学性、温度感的内容调性。保存到 C:\\Users\\Midas\\Desktop\\MD_HTML\\md-to-styled-html-workspace\\iteration-1\\eval-1-personal-essay-zh\\<config>\\outputs\\output.html，其中 <config> 是 with_skill 或 without_skill。",
+      "input_file": "C:\\Users\\Midas\\Desktop\\MD_HTML\\md-to-styled-html\\evals\\test-cases\\essay-zh.md",
+      "tests": [
+        "Every word from the source MD appears verbatim in the HTML",
+        "Output is single self-contained HTML; only external resource is Google Fonts",
+        "Aesthetic direction matches literary/editorial content (serif typography preferred, generous whitespace, narrow column)",
+        "Chinese serif or warm display font is used (e.g., Noto Serif SC, LXGW WenKai), not default sans",
+        "Blockquotes are styled distinctively (not just default browser indent)",
+        "Color palette is muted and contemplative, not bright marketing energy",
+        "Avoids landing-page tropes (no feature grids, no CTAs, no hero buttons)"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "product-launch-en",
+      "prompt": "Convert this Markdown README into a single self-contained, beautifully styled HTML page. Preserve every word of the source text verbatim. The visual style should match the content's tone — this is a developer-tool product launch and should feel polished and confident, like a real product landing page. Save to C:\\Users\\Midas\\Desktop\\MD_HTML\\md-to-styled-html-workspace\\iteration-1\\eval-2-product-launch-en\\<config>\\outputs\\output.html where <config> is either with_skill or without_skill.",
+      "input_file": "C:\\Users\\Midas\\Desktop\\MD_HTML\\md-to-styled-html\\evals\\test-cases\\product-launch-en.md",
+      "tests": [
+        "Every word from the source MD appears verbatim in the HTML",
+        "Output is single self-contained HTML; only external resource is Google Fonts",
+        "Distinctive typography (not Inter/Roboto/Arial)",
+        "Aesthetic feels like a real product landing page (hero, deliberate hierarchy, confident visual identity)",
+        "Code blocks are styled tastefully (monospace, dark or distinct background, NOT browser default)",
+        "Comparison table has visual polish (alternating rows or thoughtful borders, not raw <table>)",
+        "Avoids generic AI-slop aesthetics (no purple-on-white gradient hero, no centered-card-stack)"
+      ]
+    }
+  ]
+}

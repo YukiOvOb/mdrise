@@ -1,0 +1,907 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>鏡 (Kagami) — Markdown を静的サイトに変換する、最小限の SSG</title>
+<meta name="description" content="鏡は単一のバイナリで動作する静的サイトジェネレーターです。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0d10;
+    --bg-elev: #12161b;
+    --bg-elev-2: #181d24;
+    --line: #232a33;
+    --line-strong: #2e3742;
+    --ink: #e8ecf1;
+    --ink-soft: #aab4c0;
+    --ink-mute: #6b7785;
+    --accent: #d6ff3f;
+    --accent-soft: rgba(214, 255, 63, 0.12);
+    --accent-line: rgba(214, 255, 63, 0.35);
+    --warm: #ffb077;
+    --grid: rgba(255, 255, 255, 0.04);
+    --jp: "Noto Sans JP", "Zen Kaku Gothic New", system-ui, sans-serif;
+    --display: "Zen Kaku Gothic New", "Noto Sans JP", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "Cascadia Code", Menlo, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--jp);
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.78;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "palt" 1;
+  }
+
+  body {
+    background-image:
+      radial-gradient(ellipse 1200px 600px at 80% -200px, rgba(214, 255, 63, 0.06), transparent 60%),
+      radial-gradient(ellipse 800px 500px at 0% 300px, rgba(120, 180, 255, 0.04), transparent 60%);
+    background-attachment: fixed;
+  }
+
+  /* Layout shell */
+  .shell {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr);
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 32px;
+    gap: 64px;
+  }
+
+  /* ===== ToC ===== */
+  .toc {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: 100vh;
+    padding: 88px 0 32px;
+    overflow-y: auto;
+  }
+
+  .toc-inner {
+    border-left: 1px solid var(--line);
+    padding-left: 20px;
+  }
+
+  .toc-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin: 0 0 18px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .toc-eyebrow::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .toc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .toc-list a {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 6px 10px;
+    text-decoration: none;
+    color: var(--ink-mute);
+    font-size: 13.5px;
+    font-weight: 500;
+    border-radius: 6px;
+    border-left: 2px solid transparent;
+    margin-left: -12px;
+    transition: color .15s ease, background .15s ease, border-color .15s ease;
+  }
+  .toc-list a .num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-mute);
+    opacity: .7;
+  }
+  .toc-list a:hover {
+    color: var(--ink);
+    background: var(--bg-elev);
+  }
+  .toc-list a.active {
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-left-color: var(--accent);
+  }
+  .toc-list a.active .num {
+    color: var(--accent);
+    opacity: 1;
+  }
+
+  /* Floating toggle — always visible */
+  .toc-toggle {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 50;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid var(--line-strong);
+    background: var(--bg-elev);
+    color: var(--ink);
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 16px;
+    transition: background .15s, border-color .15s;
+  }
+  .toc-toggle:hover { background: var(--bg-elev-2); border-color: var(--accent-line); }
+
+  /* Desktop persistent toggle (small chevron above the rail) */
+  .toc-toggle-desktop {
+    position: sticky;
+    top: 28px;
+    margin-bottom: 24px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--bg-elev);
+    color: var(--ink-soft);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 13px;
+    transition: all .15s ease;
+  }
+  .toc-toggle-desktop:hover { color: var(--accent); border-color: var(--accent-line); }
+
+  /* ===== Main column ===== */
+  .main {
+    padding: 88px 0 160px;
+    min-width: 0;
+  }
+
+  /* Hero */
+  .hero {
+    margin-bottom: 72px;
+    position: relative;
+  }
+  .hero-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    color: var(--ink-mute);
+    margin-bottom: 24px;
+    text-transform: uppercase;
+  }
+  .hero-meta .dot {
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 12px var(--accent);
+  }
+  .hero-meta .badge {
+    padding: 3px 8px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    color: var(--ink-soft);
+    font-size: 11px;
+  }
+
+  h1.title {
+    font-family: var(--display);
+    font-weight: 900;
+    font-size: clamp(48px, 7vw, 88px);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    margin: 0 0 24px 0;
+    color: var(--ink);
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+  h1.title .kanji {
+    color: var(--accent);
+    font-size: 1.15em;
+    line-height: 0.9;
+  }
+  h1.title .latin {
+    font-family: var(--mono);
+    font-weight: 500;
+    font-size: 0.42em;
+    color: var(--ink-mute);
+    letter-spacing: 0;
+    align-self: center;
+    padding: 4px 12px;
+    border: 1px solid var(--line-strong);
+    border-radius: 6px;
+  }
+
+  .lede {
+    font-family: var(--display);
+    font-size: clamp(20px, 2.2vw, 26px);
+    line-height: 1.5;
+    color: var(--ink);
+    font-weight: 500;
+    max-width: 700px;
+    margin: 0 0 32px 0;
+    letter-spacing: -0.005em;
+  }
+  .lede strong {
+    background: linear-gradient(180deg, transparent 65%, var(--accent-soft) 65%);
+    padding: 0 4px;
+    font-weight: 500;
+  }
+
+  .hero-desc {
+    font-size: 17px;
+    color: var(--ink-soft);
+    max-width: 680px;
+    margin: 0;
+    line-height: 1.75;
+  }
+  .hero-desc code {
+    font-family: var(--mono);
+    font-size: 0.88em;
+    background: var(--bg-elev);
+    border: 1px solid var(--line);
+    padding: 2px 7px;
+    border-radius: 5px;
+    color: var(--accent);
+  }
+
+  .hero-sep {
+    margin: 64px 0 0;
+    border: 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--line-strong), transparent 80%);
+  }
+
+  /* Section headings */
+  section { margin-top: 80px; scroll-margin-top: 24px; }
+  section:first-of-type { margin-top: 56px; }
+
+  h2 {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: clamp(28px, 3.2vw, 38px);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin: 0 0 28px 0;
+    color: var(--ink);
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    scroll-margin-top: 24px;
+  }
+  h2::before {
+    content: counter(section, decimal-leading-zero);
+    counter-increment: section;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    padding: 4px 10px;
+    border: 1px solid var(--accent-line);
+    border-radius: 6px;
+    background: var(--accent-soft);
+    flex: 0 0 auto;
+    align-self: center;
+  }
+  body { counter-reset: section; }
+
+  h3 {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 20px;
+    margin: 40px 0 16px;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+
+  p {
+    margin: 0 0 20px 0;
+    color: var(--ink-soft);
+    font-size: 16px;
+    max-width: 720px;
+  }
+  p strong { color: var(--ink); font-weight: 600; }
+
+  a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px dashed var(--accent-line);
+    transition: color .15s, border-color .15s;
+  }
+  a:hover {
+    color: var(--ink);
+    border-bottom-color: var(--ink);
+  }
+
+  /* Inline code */
+  code {
+    font-family: var(--mono);
+    font-size: 0.88em;
+    background: var(--bg-elev);
+    border: 1px solid var(--line);
+    padding: 2px 7px;
+    border-radius: 5px;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  /* Feature list as cards */
+  ul.feature-grid {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+  }
+  ul.feature-grid li {
+    background: var(--bg-elev);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 22px 22px 20px;
+    color: var(--ink-soft);
+    font-size: 15px;
+    line-height: 1.6;
+    position: relative;
+    transition: border-color .2s, transform .2s;
+  }
+  ul.feature-grid li:hover {
+    border-color: var(--accent-line);
+    transform: translateY(-2px);
+  }
+  ul.feature-grid li strong {
+    display: block;
+    color: var(--ink);
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 17px;
+    margin-bottom: 6px;
+    letter-spacing: -0.005em;
+  }
+  ul.feature-grid li::before {
+    content: "";
+    position: absolute;
+    top: 22px;
+    right: 22px;
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+    border-radius: 2px;
+    transform: rotate(45deg);
+    opacity: 0.5;
+  }
+
+  /* Code blocks */
+  .codeblock {
+    position: relative;
+    background: #07090c;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    margin: 0 0 24px 0;
+    overflow: hidden;
+  }
+  .codeblock-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-elev);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .codeblock-head .dots {
+    display: inline-flex;
+    gap: 6px;
+  }
+  .codeblock-head .dots span {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--line-strong);
+  }
+  .copy-btn {
+    background: transparent;
+    border: 1px solid var(--line-strong);
+    color: var(--ink-mute);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    padding: 4px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: color .15s, border-color .15s;
+  }
+  .copy-btn:hover { color: var(--accent); border-color: var(--accent-line); }
+  .copy-btn.copied { color: var(--accent); border-color: var(--accent-line); }
+
+  pre {
+    margin: 0;
+    padding: 20px 22px;
+    font-family: var(--mono);
+    font-size: 14px;
+    line-height: 1.75;
+    color: var(--ink);
+    overflow-x: auto;
+    direction: ltr;
+  }
+  pre code {
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: inherit;
+    font-size: inherit;
+  }
+  /* Tiny shell syntax color */
+  pre .sh-comment { color: var(--ink-mute); font-style: italic; }
+  pre .sh-cmd { color: var(--accent); }
+  pre .sh-arg { color: var(--warm); }
+  pre .sh-flag { color: #9bd1ff; }
+
+  /* Table */
+  .table-wrap {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bg-elev);
+    margin: 0 0 24px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14.5px;
+  }
+  thead th {
+    text-align: left;
+    padding: 14px 18px;
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink-mute);
+    font-weight: 500;
+    background: var(--bg-elev-2);
+    border-bottom: 1px solid var(--line);
+  }
+  thead th:nth-child(2),
+  thead th:nth-child(3),
+  thead th:nth-child(4) { text-align: center; }
+
+  tbody td {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink-soft);
+    vertical-align: middle;
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  tbody td:nth-child(2),
+  tbody td:nth-child(3),
+  tbody td:nth-child(4) { text-align: center; font-family: var(--mono); font-size: 13px; }
+  tbody tr.highlight td { background: var(--accent-soft); }
+  tbody tr.highlight td:first-child {
+    color: var(--accent);
+    font-weight: 700;
+    position: relative;
+  }
+  tbody tr.highlight td:first-child::before {
+    content: "▸";
+    margin-right: 6px;
+    color: var(--accent);
+  }
+
+  /* Status callout */
+  .status-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    background: var(--bg-elev);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin: 0 0 16px 0;
+    max-width: 720px;
+  }
+  .status-card .pulse {
+    flex: 0 0 auto;
+    margin-top: 8px;
+    width: 10px;
+    height: 10px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 0 0 var(--accent);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(214, 255, 63, 0.5); }
+    70% { box-shadow: 0 0 0 12px rgba(214, 255, 63, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(214, 255, 63, 0); }
+  }
+  .status-card .label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 4px;
+  }
+  .status-card p { margin: 0; color: var(--ink-soft); }
+
+  /* License badge */
+  .license-line {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    background: var(--bg-elev);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-size: 14.5px;
+    color: var(--ink-soft);
+  }
+  .license-line .mit {
+    font-family: var(--mono);
+    font-size: 11px;
+    background: var(--accent);
+    color: #0b0d10;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+  }
+
+  /* Closing blockquote */
+  blockquote {
+    margin: 80px 0 0 0;
+    padding: 36px 36px 36px 44px;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    background:
+      linear-gradient(135deg, var(--bg-elev) 0%, transparent 100%);
+    border-radius: 0 12px 12px 0;
+    font-family: var(--display);
+    font-size: clamp(18px, 2vw, 22px);
+    line-height: 1.6;
+    color: var(--ink);
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    position: relative;
+    max-width: 720px;
+  }
+  blockquote::before {
+    content: "";
+    position: absolute;
+    top: 20px;
+    left: -7px;
+    width: 12px;
+    height: 12px;
+    background: var(--accent);
+    border: 3px solid var(--bg);
+    border-radius: 50%;
+  }
+
+  /* Footer pulse */
+  .footer-bar {
+    margin-top: 96px;
+    padding-top: 32px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-mute);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .footer-bar .right { color: var(--accent); }
+
+  /* Responsive */
+  @media (max-width: 960px) {
+    .shell { grid-template-columns: 1fr; gap: 0; padding: 0 24px; }
+    .toc {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 280px;
+      padding: 80px 20px 32px;
+      background: var(--bg-elev);
+      border-right: 1px solid var(--line);
+      z-index: 40;
+      transform: translateX(-100%);
+      transition: transform .25s ease;
+      overflow-y: auto;
+    }
+    .toc.open { transform: translateX(0); }
+    .toc-inner { border-left: none; padding-left: 0; }
+    .toc-toggle { display: flex; }
+    .toc-toggle-desktop { display: none; }
+    .main { padding: 80px 0 120px; }
+  }
+
+  @media (max-width: 480px) {
+    h1.title { font-size: 44px; gap: 10px; }
+    h1.title .latin { font-size: 14px; }
+    h2 { font-size: 26px; }
+    .lede { font-size: 18px; }
+    .hero { margin-bottom: 56px; }
+    section { margin-top: 64px; }
+    pre { font-size: 13px; padding: 16px; }
+    .table-wrap { overflow-x: auto; }
+    table { min-width: 520px; }
+    blockquote { padding: 24px 20px 24px 28px; }
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--ink-mute); }
+</style>
+</head>
+<body>
+
+<button class="toc-toggle" id="tocToggleMobile" aria-expanded="false" aria-controls="toc-nav" aria-label="目次を開く">☰</button>
+
+<div class="shell">
+
+  <aside class="toc" id="toc" aria-label="目次">
+    <div class="toc-inner">
+      <button class="toc-toggle-desktop" id="tocToggleDesktop" aria-label="目次の表示切り替え" title="目次の表示切り替え">‹</button>
+      <p class="toc-eyebrow">Index — 目次</p>
+      <ul class="toc-list" id="toc-nav">
+        <li><a href="#why"><span class="num">01</span><span>なぜ作ったのか</span></a></li>
+        <li><a href="#features"><span class="num">02</span><span>主な特徴</span></a></li>
+        <li><a href="#quickstart"><span class="num">03</span><span>クイックスタート</span></a></li>
+        <li><a href="#compare"><span class="num">04</span><span>比較</span></a></li>
+        <li><a href="#status"><span class="num">05</span><span>ステータス</span></a></li>
+        <li><a href="#license"><span class="num">06</span><span>ライセンス</span></a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <header class="hero">
+      <div class="hero-meta">
+        <span class="dot"></span>
+        <span>Static Site Generator</span>
+        <span class="badge">Go</span>
+        <span class="badge">≈ 5 MB</span>
+        <span class="badge">v0.3</span>
+      </div>
+
+      <h1 class="title">
+        <span class="kanji">鏡</span>
+        <span class="latin">Kagami</span>
+      </h1>
+
+      <p class="lede"><strong>Markdown を静的サイトに変換する、最小限の SSG。</strong></p>
+
+      <p class="hero-desc">鏡は単一のバイナリで動作する静的サイトジェネレーターです。設定ファイルは要らず、<code>kagami</code> を実行するだけで、カレントディレクトリの <code>.md</code> ファイルを HTML に変換します。</p>
+
+      <hr class="hero-sep">
+    </header>
+
+    <section id="why">
+      <h2>なぜ作ったのか</h2>
+      <p>既存の SSG は機能が多すぎます。テーマシステム、プラグインアーキテクチャ、複雑な設定ファイル。個人ブログを書くだけなら、こんなものは要らないはずです。</p>
+      <p>鏡は「ファイルを HTML に変換する」という一つのことだけをします。</p>
+    </section>
+
+    <section id="features">
+      <h2>主な特徴</h2>
+      <ul class="feature-grid">
+        <li><strong>ゼロ設定</strong>設定ファイルは存在しません。</li>
+        <li><strong>単一バイナリ</strong>Go 製、約 5 MB、依存なし。</li>
+        <li><strong>日本語フレンドリー</strong>縦書き、ルビ、約物の処理を組み込み済み。</li>
+        <li><strong>高速</strong>1,000 ファイルを 200ms で処理します。</li>
+        <li><strong>ライブリロード</strong><code>kagami serve</code> で開発サーバが起動します。</li>
+      </ul>
+    </section>
+
+    <section id="quickstart">
+      <h2>クイックスタート</h2>
+
+      <div class="codeblock">
+        <div class="codeblock-head">
+          <span class="dots"><span></span><span></span><span></span></span>
+          <span>bash</span>
+          <button class="copy-btn" data-copy="bash-1">Copy</button>
+        </div>
+<pre id="bash-1"><code><span class="sh-comment"># インストール</span>
+<span class="sh-cmd">brew</span> <span class="sh-arg">install</span> kagami-ssg/tap/kagami
+
+<span class="sh-comment"># 変換</span>
+<span class="sh-cmd">kagami</span> <span class="sh-arg">build</span> .
+
+<span class="sh-comment"># 開発サーバ</span>
+<span class="sh-cmd">kagami</span> <span class="sh-arg">serve</span> <span class="sh-flag">--port</span> 4000</code></pre>
+      </div>
+
+      <p><code>kagami init</code> でテンプレートを生成することもできます。</p>
+    </section>
+
+    <section id="compare">
+      <h2>比較</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ツール</th>
+              <th>設定ファイル</th>
+              <th>日本語処理</th>
+              <th>バイナリサイズ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Hugo</td>
+              <td>必要</td>
+              <td>限定的</td>
+              <td>約 30 MB</td>
+            </tr>
+            <tr>
+              <td>Jekyll</td>
+              <td>必要</td>
+              <td>プラグインで</td>
+              <td>Ruby 依存</td>
+            </tr>
+            <tr>
+              <td>Eleventy</td>
+              <td>必要</td>
+              <td>プラグインで</td>
+              <td>Node 依存</td>
+            </tr>
+            <tr class="highlight">
+              <td><strong>鏡</strong></td>
+              <td>不要</td>
+              <td>組み込み</td>
+              <td>約 5 MB</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="status">
+      <h2>ステータス</h2>
+      <div class="status-card">
+        <span class="pulse" aria-hidden="true"></span>
+        <div>
+          <div class="label">v0.3 — In active use</div>
+          <p>現在 <code>v0.3</code> です。日常的に使われていますが、<code>v1.0</code> までは破壊的変更があり得ます。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="license">
+      <h2>ライセンス</h2>
+      <p><span class="license-line"><span class="mit">MIT</span>詳細は <a href="LICENSE">LICENSE</a> を参照してください。</span></p>
+
+      <blockquote>夜中の三時にデプロイを直したくない人のための SSG。</blockquote>
+
+      <div class="footer-bar">
+        <span>鏡 — Kagami SSG</span>
+        <span class="right">build &nbsp;·&nbsp; serve &nbsp;·&nbsp; ship</span>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  (function () {
+    const tocPanel = document.getElementById('toc');
+    const tocNav = document.getElementById('toc-nav');
+    const mobileToggle = document.getElementById('tocToggleMobile');
+    const desktopToggle = document.getElementById('tocToggleDesktop');
+
+    function setMobileOpen(open) {
+      tocPanel.classList.toggle('open', open);
+      mobileToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      mobileToggle.textContent = open ? '×' : '☰';
+    }
+
+    mobileToggle.addEventListener('click', () => {
+      const open = !tocPanel.classList.contains('open');
+      setMobileOpen(open);
+    });
+
+    // Desktop collapse: hide the list but keep toggle visible
+    let collapsed = false;
+    desktopToggle.addEventListener('click', () => {
+      collapsed = !collapsed;
+      tocNav.style.display = collapsed ? 'none' : '';
+      const eyebrow = tocPanel.querySelector('.toc-eyebrow');
+      if (eyebrow) eyebrow.style.display = collapsed ? 'none' : '';
+      desktopToggle.textContent = collapsed ? '›' : '‹';
+      desktopToggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+    });
+
+    // Close mobile ToC on link click
+    tocNav.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => {
+        if (window.innerWidth <= 960) setMobileOpen(false);
+      });
+    });
+
+    // Scroll-spy
+    const links = [...tocNav.querySelectorAll('a')];
+    const map = new Map(links.map(a => [a.getAttribute('href').slice(1), a]));
+    const headings = document.querySelectorAll('section[id]');
+
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          links.forEach(a => a.classList.remove('active'));
+          const link = map.get(e.target.id);
+          if (link) link.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-30% 0px -60% 0px', threshold: 0 });
+
+    headings.forEach(h => io.observe(h));
+
+    // Copy buttons
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-copy');
+        const target = document.getElementById(id);
+        if (!target) return;
+        const text = target.innerText;
+        navigator.clipboard.writeText(text).then(() => {
+          const orig = btn.textContent;
+          btn.textContent = 'Copied';
+          btn.classList.add('copied');
+          setTimeout(() => {
+            btn.textContent = orig;
+            btn.classList.remove('copied');
+          }, 1400);
+        });
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>

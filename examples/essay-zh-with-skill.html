@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>搬到新城市的第一年</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;600;700&family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f3ead7;
+    --paper-warm:#ede0c4;
+    --ink:#2b2520;
+    --ink-soft:#574c42;
+    --ink-faint:#8a7e70;
+    --rule:#c9b894;
+    --accent:#8a3a2a;
+    --accent-soft:#b6614a;
+    --col:640px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"Noto Serif SC","Source Han Serif SC",serif;
+    color:var(--ink);
+    background:
+      radial-gradient(ellipse at 18% 8%, rgba(255,247,225,.65), transparent 55%),
+      radial-gradient(ellipse at 82% 92%, rgba(196,170,128,.30), transparent 60%),
+      radial-gradient(ellipse at 50% 50%, #f6eedc 0%, #efe2c5 70%, #e7d6b1 100%);
+    background-attachment:fixed;
+    font-size:17.5px;
+    line-height:1.95;
+    font-weight:400;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    min-height:100vh;
+  }
+  /* subtle paper grain via SVG noise */
+  body::before{
+    content:"";
+    position:fixed; inset:0; pointer-events:none; z-index:0;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.35  0 0 0 0 0.28  0 0 0 0 0.18  0 0 0 0.08 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    opacity:.55;
+    mix-blend-mode:multiply;
+  }
+
+  /* page surface */
+  main{
+    position:relative;
+    z-index:1;
+    max-width:var(--col);
+    margin:0 auto;
+    padding:96px 28px 140px;
+  }
+
+  /* title block */
+  .title-block{
+    text-align:center;
+    margin:0 0 64px;
+    padding-bottom:48px;
+    position:relative;
+  }
+  h1{
+    font-family:"Ma Shan Zheng","ZCOOL XiaoWei","Noto Serif SC",serif;
+    font-weight:400;
+    font-size:clamp(2.4rem, 6.2vw, 3.6rem);
+    line-height:1.25;
+    color:var(--ink);
+    margin:0 0 28px;
+    letter-spacing:.06em;
+  }
+  .subtitle{
+    font-family:"EB Garamond","Noto Serif SC",serif;
+    font-style:italic;
+    color:var(--ink-soft);
+    font-size:1.02rem;
+    letter-spacing:.04em;
+    margin:0;
+  }
+  .subtitle::before,.subtitle::after{
+    content:"·";
+    color:var(--rule);
+    margin:0 .8em;
+    font-style:normal;
+  }
+  .title-block::after{
+    content:"";
+    position:absolute;
+    left:50%; bottom:0;
+    transform:translateX(-50%);
+    width:64px; height:1px;
+    background:linear-gradient(90deg,transparent,var(--rule) 30%,var(--rule) 70%,transparent);
+  }
+
+  /* horizontal rules from MD become ornamental */
+  hr{
+    border:0;
+    height:36px;
+    margin:48px auto;
+    width:100%;
+    background:transparent;
+    position:relative;
+  }
+  hr::before{
+    content:"❖";
+    position:absolute;
+    left:50%; top:50%;
+    transform:translate(-50%,-50%);
+    color:var(--rule);
+    font-size:1.05rem;
+    letter-spacing:.6em;
+    padding-left:.6em;
+  }
+  hr::after{
+    content:"";
+    position:absolute;
+    left:0; right:0; top:50%;
+    height:1px;
+    background:linear-gradient(90deg,transparent 0,transparent 38%,var(--rule) 38%,var(--rule) 42%,transparent 42%,transparent 58%,var(--rule) 58%,var(--rule) 62%,transparent 62%,transparent 100%);
+    opacity:0;
+  }
+
+  /* headings */
+  h2{
+    font-family:"Noto Serif SC",serif;
+    font-weight:500;
+    font-size:1.32rem;
+    color:var(--ink);
+    margin:64px 0 28px;
+    letter-spacing:.08em;
+    text-align:center;
+    position:relative;
+    padding-bottom:18px;
+  }
+  h2::after{
+    content:"";
+    position:absolute;
+    left:50%; bottom:0;
+    transform:translateX(-50%);
+    width:28px; height:1px;
+    background:var(--rule);
+  }
+
+  /* paragraphs */
+  p{
+    margin:0 0 1.3em;
+    text-align:justify;
+    text-justify:inter-ideograph;
+    hyphens:auto;
+  }
+  /* first paragraph after each h2: small first-line indent feel, no drop cap (CJK) */
+  h2 + p{
+    margin-top:0;
+  }
+
+  /* blockquote — pulled aside, italic-feel, accent rule */
+  blockquote{
+    margin:36px 0 36px;
+    padding:6px 0 6px 22px;
+    border-left:2px solid var(--accent-soft);
+    color:var(--ink-soft);
+    font-size:1.02rem;
+    line-height:1.95;
+    position:relative;
+  }
+  blockquote p{margin:0}
+  /* the very first blockquote (the date line right under title) is special */
+  .dateline{
+    text-align:center;
+    border-left:0;
+    padding:0;
+    margin:0 0 28px;
+    font-family:"EB Garamond","Noto Serif SC",serif;
+    font-style:italic;
+    color:var(--ink-faint);
+    font-size:.98rem;
+    letter-spacing:.12em;
+  }
+  .dateline p::before{content:"— "}
+  .dateline p::after{content:" —"}
+
+  /* lists */
+  ul{
+    list-style:none;
+    padding:0;
+    margin:0 0 1.3em;
+  }
+  ul li{
+    position:relative;
+    padding-left:24px;
+    margin-bottom:.6em;
+  }
+  ul li::before{
+    content:"❘";
+    position:absolute;
+    left:6px; top:.05em;
+    color:var(--accent-soft);
+    font-size:.85em;
+  }
+
+  /* closing dedication line */
+  .dedication{
+    text-align:center;
+    color:var(--ink-soft);
+    font-style:italic;
+    font-family:"Noto Serif SC",serif;
+    font-size:1.02rem;
+    letter-spacing:.08em;
+    margin-top:18px;
+  }
+  .dedication em{font-style:italic}
+
+  em{font-style:italic;color:var(--ink-soft)}
+  strong{font-weight:600;color:var(--ink)}
+
+  /* signature flourish under dedication */
+  .colophon{
+    margin-top:64px;
+    text-align:center;
+    color:var(--ink-faint);
+    font-family:"Ma Shan Zheng",serif;
+    font-size:1.1rem;
+    letter-spacing:.4em;
+    opacity:.55;
+  }
+
+  /* ============ ToC ============ */
+  .toc{
+    position:fixed;
+    top:50%;
+    right:24px;
+    transform:translateY(-50%);
+    z-index:50;
+    display:flex;
+    align-items:flex-start;
+    gap:14px;
+    font-family:"Noto Serif SC",serif;
+  }
+  .toc-toggle{
+    flex:0 0 auto;
+    width:38px; height:38px;
+    border-radius:50%;
+    border:1px solid var(--rule);
+    background:rgba(243,234,215,.85);
+    backdrop-filter:blur(4px);
+    -webkit-backdrop-filter:blur(4px);
+    color:var(--ink-soft);
+    font-family:"Ma Shan Zheng","Noto Serif SC",serif;
+    font-size:1.05rem;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:all .25s ease;
+    box-shadow:0 1px 0 rgba(0,0,0,.04);
+  }
+  .toc-toggle:hover{
+    color:var(--accent);
+    border-color:var(--accent-soft);
+    background:rgba(243,234,215,1);
+  }
+  .toc-toggle[aria-expanded="true"]{
+    color:var(--accent);
+    border-color:var(--accent-soft);
+  }
+  .toc-list{
+    background:rgba(246,238,220,.94);
+    backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px);
+    border:1px solid var(--rule);
+    border-radius:2px;
+    padding:18px 22px;
+    min-width:200px;
+    max-width:240px;
+    box-shadow:0 8px 24px -16px rgba(60,40,20,.35);
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .toc-list[hidden]{display:none}
+  .toc-title{
+    font-family:"EB Garamond","Noto Serif SC",serif;
+    font-style:italic;
+    color:var(--ink-faint);
+    font-size:.78rem;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    padding-bottom:8px;
+    border-bottom:1px solid var(--rule);
+    margin-bottom:4px;
+  }
+  .toc-list a{
+    display:block;
+    color:var(--ink-soft);
+    text-decoration:none;
+    font-size:.92rem;
+    line-height:1.5;
+    font-style:italic;
+    font-family:"Noto Serif SC",serif;
+    padding:2px 0 2px 14px;
+    border-left:1px solid transparent;
+    transition:all .2s ease;
+  }
+  .toc-list a:hover{
+    color:var(--accent);
+    border-left-color:var(--rule);
+  }
+  .toc-list a.active{
+    color:var(--accent);
+    border-left-color:var(--accent);
+    font-weight:500;
+  }
+
+  /* ============ responsive ============ */
+  @media (max-width:768px){
+    main{padding:64px 22px 100px}
+    body{font-size:16.5px;line-height:1.9}
+    h1{font-size:2.3rem}
+    h2{font-size:1.18rem;margin-top:48px}
+    .toc{
+      top:auto;
+      bottom:22px;
+      right:18px;
+      transform:none;
+      flex-direction:row-reverse;
+      align-items:flex-end;
+    }
+    .toc-list{
+      position:fixed;
+      bottom:74px;
+      right:18px;
+      max-width:calc(100vw - 36px);
+      min-width:200px;
+    }
+  }
+  @media (max-width:380px){
+    main{padding:56px 18px 96px}
+    h1{font-size:2rem;letter-spacing:.04em}
+  }
+
+  @media print{
+    .toc{display:none}
+    body{background:#fff}
+    body::before{display:none}
+  }
+</style>
+</head>
+<body>
+
+<aside class="toc" aria-label="目录">
+  <button class="toc-toggle" aria-expanded="false" aria-controls="toc-list" title="目录">目</button>
+  <nav id="toc-list" class="toc-list" hidden>
+    <div class="toc-title">目 录</div>
+    <a href="#sec-1">一、最先记住的不是地标</a>
+    <a href="#sec-2">二、想家的方式</a>
+    <a href="#sec-3">三、城市的善意</a>
+    <a href="#sec-4">四、一年后</a>
+  </nav>
+</aside>
+
+<main>
+
+  <header class="title-block">
+    <h1>搬到新城市的第一年</h1>
+    <div class="dateline"><p>写于 2025 年冬</p></div>
+  </header>
+
+  <hr>
+
+  <section>
+    <h2 id="sec-1">一、最先记住的不是地标</h2>
+
+    <p>是巷口那家烧饼摊。</p>
+
+    <p>老板娘四十多岁，每天清晨五点半开张。第一次去的时候，我连"葱花的还是不要葱花的"都听了三遍才听明白——她的方言混着普通话，像两条河汇成一条。</p>
+
+    <p>后来我才知道，这条街上的人都是这样说话的。</p>
+  </section>
+
+  <section>
+    <h2 id="sec-2">二、想家的方式</h2>
+
+    <p>第一个月，我每天给妈妈打电话，每次都说"挺好的"。</p>
+
+    <p>第二个月，电话变成了两天一次，话也少了。不是因为不想说，是因为发现想说的太多，反而说不出来。</p>
+
+    <p>到第三个月，我开始煮她教我的那道番茄牛腩。锅里咕嘟咕嘟的声音，像是把家乡的下午搬到了这间出租屋。</p>
+
+    <blockquote><p>想家不是一种感觉，是一种动作。是你在异乡的厨房里，下意识地切了她切菜的形状。</p></blockquote>
+  </section>
+
+  <section>
+    <h2 id="sec-3">三、城市的善意</h2>
+
+    <p>有些是计划之外的：</p>
+
+    <ul>
+      <li>暴雨那天，便利店店员把伞借给了一个陌生人；</li>
+      <li>地铁里被踩到脚，对方比我先道歉；</li>
+      <li>楼下大爷每天遛狗，第三次见面就开始记得我的名字。</li>
+    </ul>
+
+    <p>这些细碎的瞬间，比任何旅游攻略都更早地告诉我：这座城市，已经在悄悄收留我了。</p>
+  </section>
+
+  <section>
+    <h2 id="sec-4">四、一年后</h2>
+
+    <p>某一天，我发现自己在跟新来的同事介绍这座城市，语气像个本地人。</p>
+
+    <p>我意识到，"家"这个词，原来是可以同时存在两个地方的。</p>
+  </section>
+
+  <hr>
+
+  <p class="dedication"><em>致每一个正在适应新地方的你。</em></p>
+
+</main>
+
+<script>
+  (function(){
+    var btn = document.querySelector('.toc-toggle');
+    var list = document.getElementById('toc-list');
+    if(!btn || !list) return;
+    btn.addEventListener('click', function(){
+      var hidden = list.hasAttribute('hidden');
+      if(hidden){
+        list.removeAttribute('hidden');
+        btn.setAttribute('aria-expanded','true');
+      }else{
+        list.setAttribute('hidden','');
+        btn.setAttribute('aria-expanded','false');
+      }
+    });
+    // close on outside click (mobile-friendly)
+    document.addEventListener('click', function(e){
+      if(list.hasAttribute('hidden')) return;
+      if(e.target.closest('.toc')) return;
+      list.setAttribute('hidden','');
+      btn.setAttribute('aria-expanded','false');
+    });
+
+    var links = Array.prototype.slice.call(document.querySelectorAll('.toc-list a'));
+    var map = new Map(links.map(function(a){ return [a.getAttribute('href').slice(1), a]; }));
+    if('IntersectionObserver' in window){
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+          if(e.isIntersecting){
+            links.forEach(function(a){ a.classList.remove('active'); });
+            var a = map.get(e.target.id);
+            if(a) a.classList.add('active');
+          }
+        });
+      }, { rootMargin: '-25% 0px -65% 0px' });
+      document.querySelectorAll('h2[id]').forEach(function(h){ io.observe(h); });
+    }
+  })();
+</script>
+
+</body>
+</html>

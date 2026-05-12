@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>قهوة الصباح</title>
+<meta name="description" content="دمشق، شتاء 2023 — مقالة شخصية عن قهوة الصباح في زقاق خلف الجامع الأموي.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Aref+Ruqaa:wght@400;700&family=Reem+Kufi:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f3ead8;
+    --paper-edge:#ead9b6;
+    --ink:#2a2118;
+    --ink-soft:#4a3d2e;
+    --muted:#8a7a5e;
+    --rule:#c8b692;
+    --accent:#7a3522;
+    --accent-soft:#a86b46;
+    --col: 640px;
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+
+  html{
+    background:
+      radial-gradient(ellipse at top right, #f7efdb 0%, #efe4cc 55%, #e8dabb 100%) fixed;
+    color:var(--ink);
+    font-family: "Amiri", "Noto Naskh Arabic", "Noto Serif", serif;
+    font-size:18px;
+    line-height:1.95;
+    text-rendering:optimizeLegibility;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  body{
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 15% 10%, rgba(255,250,235,.6), transparent 45%),
+      radial-gradient(circle at 85% 90%, rgba(168,107,70,.06), transparent 50%);
+    padding-block: clamp(2.5rem, 6vw, 5rem);
+    padding-inline: 1.25rem;
+  }
+
+  /* The page — a warm sheet */
+  .page{
+    max-width: var(--col);
+    margin-inline:auto;
+    position:relative;
+    padding-block: clamp(2rem, 5vw, 3.5rem) clamp(3rem, 7vw, 5rem);
+    padding-inline: clamp(0.5rem, 2vw, 1.5rem);
+  }
+
+  /* Title */
+  .masthead{
+    text-align:center;
+    margin-block-end: 2.5rem;
+  }
+  .masthead .ornament{
+    color:var(--rule);
+    font-family:"Aref Ruqaa", serif;
+    font-size:1.5rem;
+    letter-spacing:.5em;
+    margin-block-end:1.25rem;
+    line-height:1;
+  }
+  .masthead h1{
+    font-family:"Aref Ruqaa", "Amiri", serif;
+    font-weight:700;
+    font-size: clamp(2.6rem, 7vw, 3.8rem);
+    line-height:1.2;
+    margin:0;
+    color:var(--ink);
+    letter-spacing:-.01em;
+  }
+  .masthead .byline{
+    margin-block-start:1rem;
+    font-family:"Reem Kufi", "Amiri", sans-serif;
+    font-size:.78rem;
+    letter-spacing:.35em;
+    color:var(--muted);
+    text-transform:none;
+  }
+
+  /* Epigraph blockquote at top */
+  .epigraph{
+    text-align:center;
+    border:none;
+    margin: 0 auto 2rem;
+    padding:0;
+    font-family:"Amiri", serif;
+    font-style:italic;
+    color:var(--ink-soft);
+    font-size:1.05rem;
+  }
+  .epigraph p{margin:0}
+  .epigraph .latin{
+    font-family:"Cormorant Garamond", "Amiri", serif;
+    font-style:italic;
+  }
+
+  /* Ornamental divider */
+  hr, .divider{
+    border:none;
+    text-align:center;
+    margin: 2.75rem auto;
+    color:var(--accent-soft);
+    font-family:"Aref Ruqaa", serif;
+    font-size:1.1rem;
+    letter-spacing:1.2em;
+    line-height:1;
+    background:none;
+  }
+  hr::before, .divider::before{
+    content:"❋   ❋   ❋";
+    color:var(--accent-soft);
+    opacity:.7;
+  }
+
+  /* Section headings */
+  h2{
+    font-family:"Aref Ruqaa", "Amiri", serif;
+    font-weight:700;
+    font-size: clamp(1.6rem, 3.8vw, 2rem);
+    line-height:1.35;
+    margin-block: 3rem 1.25rem;
+    color:var(--ink);
+    position:relative;
+    padding-block-end:.6rem;
+  }
+  h2::after{
+    content:"";
+    display:block;
+    width:3.2rem;
+    height:1px;
+    background:linear-gradient(to left, var(--accent), transparent);
+    margin-block-start:.6rem;
+    margin-inline-start:0;
+  }
+  h2 .num{
+    color:var(--accent);
+    font-family:"Aref Ruqaa", serif;
+    font-weight:400;
+    margin-inline-end:.35em;
+  }
+
+  /* Body paragraphs */
+  p{
+    margin:0 0 1.15rem;
+    text-align:justify;
+    text-justify:inter-word;
+    hyphens:auto;
+  }
+
+  /* Drop cap on first paragraph after first H2 */
+  h2 + p::first-letter{
+    font-family:"Aref Ruqaa", "Amiri", serif;
+    font-size:3.2em;
+    font-weight:700;
+    line-height:.85;
+    float:right;
+    margin-inline-start:.3rem;
+    margin-block-start:.15rem;
+    color:var(--accent);
+  }
+
+  /* Embedded Latin / numerals */
+  .ltr{
+    direction:ltr;
+    unicode-bidi:isolate;
+    font-family:"Cormorant Garamond", "Amiri", serif;
+    font-style:italic;
+    color:var(--ink-soft);
+    letter-spacing:.02em;
+  }
+
+  /* Lists */
+  ul{
+    list-style:none;
+    padding:0;
+    margin: 0 0 1.5rem;
+  }
+  ul li{
+    position:relative;
+    padding-inline-start:1.6rem;
+    margin-block-end:.8rem;
+    line-height:1.85;
+  }
+  ul li::before{
+    content:"۞";
+    position:absolute;
+    inset-inline-start:0;
+    top:.1em;
+    color:var(--accent-soft);
+    font-size:.85em;
+    opacity:.7;
+  }
+
+  /* In-body blockquote (the abu samer quote) */
+  blockquote{
+    border:none;
+    margin: 2rem 0;
+    padding-block: 1.25rem;
+    padding-inline: 1.5rem 0;
+    position:relative;
+    font-family:"Amiri", serif;
+    font-style:italic;
+    font-size:1.18rem;
+    line-height:1.85;
+    color:var(--ink);
+    text-align:start;
+  }
+  blockquote::before{
+    content:"";
+    position:absolute;
+    inset-inline-end:0;
+    top:.5rem;
+    bottom:.5rem;
+    width:2px;
+    background:linear-gradient(to bottom, var(--accent) 0%, var(--accent-soft) 50%, transparent 100%);
+  }
+  blockquote p{margin-block-end:.5rem; text-align:start}
+  blockquote em, blockquote .attrib{
+    display:block;
+    font-style:normal;
+    font-family:"Reem Kufi", "Amiri", sans-serif;
+    font-size:.85rem;
+    color:var(--muted);
+    letter-spacing:.04em;
+    margin-block-start:.4rem;
+  }
+
+  /* Closing italic note */
+  .colophon{
+    text-align:center;
+    margin-block-start:2rem;
+    font-family:"Amiri", serif;
+    font-style:italic;
+    color:var(--ink-soft);
+    font-size:1.05rem;
+  }
+  .colophon::before, .colophon::after{
+    content:"·";
+    color:var(--accent-soft);
+    margin-inline:.6rem;
+  }
+
+  /* ====== Floating ToC ====== */
+  /* Visually on LEFT of viewport (which in RTL is the "end" of the inline axis) */
+  .toc{
+    position:fixed;
+    top:50%;
+    inset-inline-end:auto;   /* don't pin to start (=right in RTL) */
+    left:0;                  /* pin to left of viewport visually */
+    transform:translateY(-50%);
+    z-index:50;
+    display:flex;
+    align-items:center;
+    gap:.75rem;
+    direction:rtl;
+    pointer-events:none;
+  }
+  .toc-toggle{
+    pointer-events:auto;
+    width:44px;
+    height:44px;
+    border:1px solid var(--rule);
+    background:#f7efdb;
+    color:var(--accent);
+    font-family:"Aref Ruqaa", serif;
+    font-size:1.15rem;
+    line-height:1;
+    cursor:pointer;
+    border-radius:0 6px 6px 0;
+    border-inline-start:none;
+    box-shadow: 2px 2px 0 rgba(122,53,34,.08);
+    transition: background .2s ease, color .2s ease;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-inline-start:0;
+  }
+  .toc-toggle:hover{background:var(--paper); color:var(--ink)}
+  .toc-toggle .glyph{display:inline-block}
+
+  .toc-list{
+    pointer-events:auto;
+    background: #f7efdb;
+    border:1px solid var(--rule);
+    border-inline-start:none;
+    box-shadow: 4px 4px 0 rgba(122,53,34,.06);
+    padding: 1.25rem 1.4rem;
+    min-width: 220px;
+    max-width: 280px;
+    max-height: 70vh;
+    overflow:auto;
+    display:flex;
+    flex-direction:column;
+    gap:.55rem;
+    border-radius: 0 4px 4px 0;
+  }
+  .toc-list[hidden]{display:none}
+  .toc-list .toc-title{
+    font-family:"Reem Kufi", sans-serif;
+    font-size:.7rem;
+    letter-spacing:.4em;
+    color:var(--muted);
+    margin-block-end:.35rem;
+    padding-block-end:.5rem;
+    border-block-end:1px solid var(--rule);
+  }
+  .toc-list a{
+    color:var(--ink-soft);
+    text-decoration:none;
+    font-family:"Amiri", serif;
+    font-size:.98rem;
+    line-height:1.5;
+    padding-block:.2rem;
+    padding-inline-start:.6rem;
+    border-inline-start:2px solid transparent;
+    transition: color .15s ease, border-color .15s ease;
+  }
+  .toc-list a:hover{color:var(--accent)}
+  .toc-list a.active{
+    color:var(--accent);
+    border-inline-start-color:var(--accent);
+    font-weight:700;
+  }
+
+  /* Mobile */
+  @media (max-width:768px){
+    html{font-size:17px}
+    .toc{top:auto; bottom:1rem; left:1rem; transform:none}
+    .toc-toggle{
+      border-radius:50%;
+      border:1px solid var(--rule);
+      box-shadow: 0 4px 12px rgba(42,33,24,.18);
+    }
+    .toc-list{
+      position:fixed;
+      left:1rem;
+      bottom:4.25rem;
+      right:1rem;
+      max-width:none;
+      border-radius:6px;
+      border-inline-start:1px solid var(--rule);
+    }
+    h2 + p::first-letter{
+      font-size:2.8em;
+    }
+  }
+
+  @media print{
+    .toc{display:none}
+    html, body{background:white}
+  }
+
+  ::selection{background:rgba(122,53,34,.18); color:var(--ink)}
+</style>
+</head>
+<body>
+
+<aside class="toc" aria-label="فهرس المقالة">
+  <button class="toc-toggle" id="tocToggle" aria-expanded="false" aria-controls="toc-list" aria-label="فتح الفهرس">
+    <span class="glyph" aria-hidden="true">❋</span>
+  </button>
+  <nav class="toc-list" id="toc-list" hidden>
+    <div class="toc-title">الفهرس</div>
+    <a href="#sec-1">أولاً: المكان</a>
+    <a href="#sec-2">ثانياً: الطقس</a>
+    <a href="#sec-3">ثالثاً: الناس</a>
+    <a href="#sec-4">أخيراً</a>
+  </nav>
+</aside>
+
+<article class="page">
+
+  <header class="masthead">
+    <div class="ornament" aria-hidden="true">❋ ❋ ❋</div>
+    <h1>قهوة الصباح</h1>
+    <div class="byline">مقالة</div>
+  </header>
+
+  <div class="epigraph">
+    <p>دمشق، شتاء <span class="ltr">2023</span></p>
+  </div>
+
+  <hr aria-hidden="true">
+
+  <section>
+    <h2 id="sec-1"><span class="num">١.</span>أولاً: المكان</h2>
+    <p>في زقاق ضيق خلف الجامع الأموي، يفتح أبو سامر مقهاه عند الفجر. لا لافتة، لا قائمة، فقط ثلاث طاولات خشبية ورائحة الهيل والقهوة المحمصة طازجة كل صباح.</p>
+    <p>لم أكن أعرف أن مكاناً بهذه البساطة يمكن أن يصبح، مع الوقت، جزءاً من ذاكرتي اليومية.</p>
+  </section>
+
+  <section>
+    <h2 id="sec-2"><span class="num">٢.</span>ثانياً: الطقس</h2>
+    <ul>
+      <li>القهوة تُقدَّم في فناجين صغيرة بيضاء.</li>
+      <li>لا يُسأل أحد عن نوعها أو محلّاها — كلها سادة، كلها قوية.</li>
+      <li>الأكواب الزجاجية للماء البارد تأتي معها دائماً.</li>
+      <li>الفاتورة لا تُكتب؛ يتذكّر أبو سامر كم شربتَ.</li>
+    </ul>
+
+    <blockquote>
+      <p>&ldquo;القهوة الجيدة لا تحتاج إلى وصف.&rdquo;</p>
+      <span class="attrib">— أبو سامر، في كل صباح.</span>
+    </blockquote>
+  </section>
+
+  <section>
+    <h2 id="sec-3"><span class="num">٣.</span>ثالثاً: الناس</h2>
+    <p>يجتمع هنا الكتّاب، والمتقاعدون، وعمّال السوق المبكرون. لا أحد يستخدم هاتفه. الصمت محترم. الحديث، حين يحدث، يكون قصيراً ومدروساً.</p>
+    <p>أحياناً، يدخل أحدهم، يجلس، يشرب فنجانه، ويغادر دون أن يقول كلمة واحدة. وهذا أيضاً مقبول.</p>
+  </section>
+
+  <section>
+    <h2 id="sec-4"><span class="num">٤.</span>أخيراً</h2>
+    <p>غادرتُ دمشق منذ عامين. ما زلتُ، حين أصنع القهوة في منزلي الجديد، أتذكّر ذلك الزقاق الضيق ورائحة الهيل التي لم أستطع أن أُعيد صنعها في أي مطبخ آخر.</p>
+    <p>أظنّ أن بعض الأماكن لا تُغادَر تماماً.</p>
+  </section>
+
+  <hr aria-hidden="true">
+
+  <p class="colophon"><em>كل قهوة لها قصة. هذه قصتي.</em></p>
+
+</article>
+
+<script>
+  (function(){
+    var btn = document.getElementById('tocToggle');
+    var list = document.getElementById('toc-list');
+
+    function setOpen(open){
+      if(open){
+        list.removeAttribute('hidden');
+        btn.setAttribute('aria-expanded','true');
+        btn.setAttribute('aria-label','إغلاق الفهرس');
+      } else {
+        list.setAttribute('hidden','');
+        btn.setAttribute('aria-expanded','false');
+        btn.setAttribute('aria-label','فتح الفهرس');
+      }
+    }
+
+    btn.addEventListener('click', function(){
+      var isOpen = !list.hasAttribute('hidden');
+      setOpen(!isOpen);
+    });
+
+    // Close on Escape
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape' && !list.hasAttribute('hidden')){ setOpen(false); }
+    });
+
+    // Smooth scroll on link click; auto-collapse on mobile
+    list.querySelectorAll('a[href^="#"]').forEach(function(a){
+      a.addEventListener('click', function(){
+        if(window.matchMedia('(max-width:768px)').matches){ setOpen(false); }
+      });
+    });
+
+    // Scroll-spy
+    var links = Array.prototype.slice.call(list.querySelectorAll('a'));
+    var map = new Map(links.map(function(a){ return [a.getAttribute('href').slice(1), a]; }));
+    if('IntersectionObserver' in window){
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+          if(e.isIntersecting){
+            links.forEach(function(a){ a.classList.remove('active'); });
+            var match = map.get(e.target.id);
+            if(match) match.classList.add('active');
+          }
+        });
+      }, { rootMargin: '-25% 0px -65% 0px', threshold: 0 });
+      document.querySelectorAll('h2[id]').forEach(function(h){ io.observe(h); });
+    }
+  })();
+</script>
+
+</body>
+</html>
