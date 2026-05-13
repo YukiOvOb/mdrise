@@ -1,0 +1,34 @@
+name: Bug 报告 / Bug report
+description: skill 行为不对、报错、或产生了破坏性的输出 / The skill misbehaves, errors, or produces broken output
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 发生了什么 / What happened
+      description: 描述问题 + 复现步骤 / Describe the issue and how to reproduce
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望行为 / Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: env
+    attributes:
+      label: 环境 / Environment
+      placeholder: |
+        Claude Code v2.x
+        Windows / macOS / Linux
+        通过 /plugin 安装 or 用 .skill 文件
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: 源 Markdown（如果适用）/ Source Markdown (if applicable)
+      description: 贴上引发问题的 .md / Paste the .md that triggered the bug
+      render: markdown

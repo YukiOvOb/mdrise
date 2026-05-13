@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 看渲染版示例 / See rendered examples
+    url: https://yukiovob.github.io/mdrise/README.html
+    about: 在提 issue 之前先看看 mdrise 实际渲染长什么样 / See what mdrise actually produces before filing an issue
+  - name: 完整设计原则 / Full design principles
+    url: https://github.com/YukiOvOb/mdrise/blob/main/SKILL.md
+    about: 看 SKILL.md 了解 skill 怎么决策 / Read SKILL.md to understand how the skill decides

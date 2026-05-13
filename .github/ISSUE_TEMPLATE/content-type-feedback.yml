@@ -1,0 +1,48 @@
+name: 内容类型渲染不对 / Content type didn't render well
+description: 某种 .md 没拿到合适的视觉方向？告诉我源文件和你期望的样子，我用 4 步迭代法修进去。Tell me your .md and the aesthetic you wanted; I'll iterate the skill.
+title: "[content-type] "
+labels: ["content-type-feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢试用 mdrise / Thanks for trying mdrise.
+
+        如果某种 .md 内容没拿到合适的视觉方向，这是你应该用的表单。
+        If a particular content type didn't get the right aesthetic, this is the right form.
+  - type: textarea
+    id: source
+    attributes:
+      label: 源 Markdown / Source Markdown
+      description: 贴上 .md 内容（或一个代表性的样本）/ Paste the .md content (or a representative sample)
+      render: markdown
+    validations:
+      required: true
+  - type: input
+    id: medium
+    attributes:
+      label: 内容类型 / Content medium
+      description: 这是什么类型的文档？/ What kind of document is this?
+      placeholder: 例如：技术 README / 个人随笔 / 产品落地页 / 食谱 / 学习笔记 / 其他
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际拿到的 / What you got
+      description: 简单描述 Claude 选的方向，或贴张截图 / Describe the aesthetic Claude chose, or share a screenshot
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望的样子 / What you wanted
+      description: 应该是什么视觉方向？有参考的网站 / 风格吗？/ What direction should it have gone? Any reference site or style?
+    validations:
+      required: true
+  - type: textarea
+    id: env
+    attributes:
+      label: 环境 / Environment
+      placeholder: |
+        Claude Code v2.x
+        Windows / macOS / Linux
+        通过 /plugin marketplace add 或 .skill 文件安装 / Installed via /plugin or .skill
